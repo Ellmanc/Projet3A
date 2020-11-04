@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homepage">
+
+    <fragment
+        android:id="@+id/homepage"
+        android:name="com.projet3a.smartspectro.HomePage"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/homepage">
+
+        <action
+            android:id="@+id/action_acceuil_to_choices"
+            app:destination="@id/choices" />
+    </fragment>
+    <fragment
+        android:id="@+id/choices"
+        android:name="com.projet3a.smartspectro.Choices"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/choices"/>
+</navigation>
