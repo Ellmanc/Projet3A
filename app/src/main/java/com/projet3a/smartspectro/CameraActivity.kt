@@ -561,12 +561,12 @@ open class CameraActivity : Activity() {
                 Toast.LENGTH_SHORT
             ).show()
         } else {
-            val sdf = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault())
+            val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             val currentDateAndTime = sdf.format(Date())
             var outputStream: OutputStream? = null
-            val directory = File(
-                Environment.DIRECTORY_DOCUMENTS
-            ) //check whether Documents directory exists, if not, we create it
+            val directory =
+                File(Environment.getExternalStorageDirectory().toString() + "/Documents")
+            //check whether Documents directory exists, if not, we create it
             if (!directory.exists()) {
                 val result = directory.mkdirs()
                 if (!result) {
@@ -575,7 +575,7 @@ open class CameraActivity : Activity() {
                 }
             }
             val file = File(
-                Environment.DIRECTORY_DOCUMENTS,
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
                 text + "_" + currentDateAndTime + ".txt"
             )
             try {
