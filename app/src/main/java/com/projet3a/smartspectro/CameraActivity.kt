@@ -17,13 +17,9 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.view.View
-import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.camera_layout.*
@@ -40,15 +36,6 @@ import kotlin.math.floor
  * Created by Rémy Cordeau-Mirani on 20/09/2019.
  */
 open class CameraActivity : Activity() {
-    private var takePictureButton: Button? = null
-    private var saveReferenceButton: Button? = null
-    private var saveDataButton: Button? = null
-    private var clearGraphButton: Button? = null
-    private var calibrateButton: Button? = null
-    private var calibrationLeft: SeekBar? = null
-    private var calibrationRight: SeekBar? = null
-    private var calibrationTop: SeekBar? = null
-    private var calibrationBottom: SeekBar? = null
     private var lastSeekBarValLeft = 0
     private var lastSeekBarValRight = 0
     private var lastSeekBarValBottom = 0
@@ -88,7 +75,7 @@ open class CameraActivity : Activity() {
     private fun enableListeners() {
 
         /* Adding listeners to the buttons */
-        takePictureButton!!.setOnClickListener(View.OnClickListener {
+        btn_takepicture!!.setOnClickListener(View.OnClickListener {
             if (isCalibrating) return@OnClickListener
             if (isDefaultCalibrationDone) {
                 displayCreationMessage()
@@ -101,7 +88,7 @@ open class CameraActivity : Activity() {
                 ).show()
             }
         })
-        saveReferenceButton!!.setOnClickListener(View.OnClickListener {
+        save_reference_button!!.setOnClickListener(View.OnClickListener {
             try {
                 if (isCalibrating || isReferenceSaved) return@OnClickListener
                 savePicture("Reference")
@@ -109,7 +96,7 @@ open class CameraActivity : Activity() {
                 Log.e(TAG, e.toString())
             }
         })
-        saveDataButton!!.setOnClickListener(View.OnClickListener {
+        save_picture_button!!.setOnClickListener(View.OnClickListener {
             if (isCalibrating) return@OnClickListener
             try {
                 if (isReferenceSaved && intensityGraph.series.size >= 2) {
@@ -145,7 +132,7 @@ open class CameraActivity : Activity() {
             if (isCalibrating) return@OnClickListener
             clearGraph()
         })
-        calibrationButton!!.setOnClickListener(View.OnClickListener {
+        calibrationButton!!.setOnClickListener {
             if (!isDefaultCalibrationDone) {
                 isDefaultCalibrationDone = true
             }
@@ -154,7 +141,7 @@ open class CameraActivity : Activity() {
             } else {
                 endCalibration()
             }
-        })
+        }
     }
 
     /**
@@ -231,10 +218,10 @@ open class CameraActivity : Activity() {
         cameraCalibrationView!!.eraseLines()
         intensityGraph.visibility = View.VISIBLE
         maxInGraph.visibility = View.VISIBLE
-        calibrationBottom?.visibility ?: View.INVISIBLE
-        calibrationTop?.visibility ?: View.INVISIBLE
-        calibrationLeft?.visibility ?: View.INVISIBLE
-        calibrationRight?.visibility ?: View.INVISIBLE
+        calibrationBottom.visibility = View.INVISIBLE
+        calibrationTop.visibility = View.INVISIBLE
+        calibrationLeft.visibility = View.INVISIBLE
+        calibrationRight.visibility = View.INVISIBLE
         TextRight.visibility = View.INVISIBLE
         TextTop.visibility = View.INVISIBLE
         TextLeft.visibility = View.INVISIBLE
@@ -251,10 +238,10 @@ open class CameraActivity : Activity() {
             intensityGraph.visibility = View.INVISIBLE
         }
         maxInGraph.visibility = View.INVISIBLE
-        calibrationBottom?.visibility ?: View.VISIBLE
-        calibrationTop?.visibility ?: View.VISIBLE
-        calibrationLeft?.visibility ?: View.VISIBLE
-        calibrationRight?.visibility ?: View.VISIBLE
+        calibrationBottom.visibility = View.VISIBLE
+        calibrationTop.visibility = View.VISIBLE
+        calibrationLeft.visibility = View.VISIBLE
+        calibrationRight.visibility = View.VISIBLE
         TextRight.visibility = View.VISIBLE
         TextTop.visibility = View.VISIBLE
         TextLeft.visibility = View.VISIBLE

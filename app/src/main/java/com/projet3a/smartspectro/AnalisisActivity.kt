@@ -291,7 +291,7 @@ class AnalysisActivity : Activity(), LocationListener {
                     longitude = location.longitude
                 }
                 if (fusedLocationProviderClient != null) {
-                    stopLocationUpdates()
+                    //stopLocationUpdates()
                 }
                 lastKnownPosition
             }
@@ -305,7 +305,7 @@ class AnalysisActivity : Activity(), LocationListener {
     public override fun onPause() {
         super.onPause()
         if (fusedLocationProviderClient != null) {
-            stopLocationUpdates()
+            //stopLocationUpdates()
         }
     }
 
