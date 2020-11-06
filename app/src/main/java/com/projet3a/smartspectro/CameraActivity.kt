@@ -26,6 +26,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.android.synthetic.main.camera_layout.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -76,7 +77,6 @@ open class CameraActivity : Activity() {
         cameraHandler = CameraHandler()
 
         //adding custom surface view above the texture view
-        val calibrationViewLayout: ConstraintLayout = findViewById(R.id.calibrationViewLayout)
         cameraCalibrationView = CameraCalibrationView(this)
         calibrationViewLayout.addView(cameraCalibrationView)
         enableListeners()
@@ -88,7 +88,6 @@ open class CameraActivity : Activity() {
     private fun enableListeners() {
 
         /* Adding listeners to the buttons */
-        takePictureButton = findViewById(R.id.btn_takepicture)
         takePictureButton!!.setOnClickListener(View.OnClickListener {
             if (isCalibrating) return@OnClickListener
             if (isDefaultCalibrationDone) {
@@ -102,7 +101,6 @@ open class CameraActivity : Activity() {
                 ).show()
             }
         })
-        saveReferenceButton = findViewById(R.id.save_reference_button)
         saveReferenceButton!!.setOnClickListener(View.OnClickListener {
             try {
                 if (isCalibrating || isReferenceSaved) return@OnClickListener
@@ -111,12 +109,10 @@ open class CameraActivity : Activity() {
                 Log.e(TAG, e.toString())
             }
         })
-        saveDataButton = findViewById(R.id.save_picture_button)
         saveDataButton!!.setOnClickListener(View.OnClickListener {
             if (isCalibrating) return@OnClickListener
             try {
-                val graphView: GraphView = findViewById(R.id.intensityGraph)
-                if (isReferenceSaved && graphView.series.size >= 2) {
+                if (isReferenceSaved && intensityGraph.series.size >= 2) {
                     savePicture("Sample")
                     if (graphData != null && isReferenceSaved && isSampleSaved) {
                         val intent = Intent(this@CameraActivity, AnalysisActivity::class.java)
@@ -145,13 +141,11 @@ open class CameraActivity : Activity() {
                 Log.e(TAG, e.toString())
             }
         })
-        clearGraphButton = findViewById(R.id.clearButton)
-        clearGraphButton!!.setOnClickListener(View.OnClickListener {
+        clearButton!!.setOnClickListener(View.OnClickListener {
             if (isCalibrating) return@OnClickListener
             clearGraph()
         })
-        calibrateButton = findViewById(R.id.calibrationButton)
-        calibrateButton!!.setOnClickListener(View.OnClickListener {
+        calibrationButton!!.setOnClickListener(View.OnClickListener {
             if (!isDefaultCalibrationDone) {
                 isDefaultCalibrationDone = true
             }
@@ -167,7 +161,6 @@ open class CameraActivity : Activity() {
      * Adds listeners on seekbars when calibrationCameraView is fully initialized
      */
     fun enableSeekBarsListeners() {
-        calibrationBottom = findViewById(R.id.calibrationBottom)
         calibrationBottom!!.max = cameraCalibrationView!!.height
         calibrationBottom!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
@@ -183,7 +176,6 @@ open class CameraActivity : Activity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-        calibrationTop = findViewById(R.id.calibrationTop)
         calibrationTop!!.max = cameraCalibrationView!!.height
         calibrationTop!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
@@ -199,7 +191,6 @@ open class CameraActivity : Activity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-        calibrationRight = findViewById(R.id.calibrationRight)
         calibrationRight!!.max = cameraCalibrationView!!.width
         calibrationRight!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
@@ -215,7 +206,6 @@ open class CameraActivity : Activity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
-        calibrationLeft = findViewById(R.id.calibrationLeft)
         calibrationLeft!!.max = cameraCalibrationView!!.width
         calibrationLeft!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
@@ -239,16 +229,16 @@ open class CameraActivity : Activity() {
     private fun endCalibration() {
         isCalibrating = false
         cameraCalibrationView!!.eraseLines()
-        findViewById<View>(R.id.intensityGraph).visibility = View.VISIBLE
-        findViewById<View>(R.id.maxInGraph).visibility = View.VISIBLE
-        findViewById<View>(R.id.calibrationBottom).visibility = View.INVISIBLE
-        findViewById<View>(R.id.calibrationTop).visibility = View.INVISIBLE
-        findViewById<View>(R.id.calibrationLeft).visibility = View.INVISIBLE
-        findViewById<View>(R.id.calibrationRight).visibility = View.INVISIBLE
-        findViewById<View>(R.id.TextRight).visibility = View.INVISIBLE
-        findViewById<View>(R.id.TextTop).visibility = View.INVISIBLE
-        findViewById<View>(R.id.TextLeft).visibility = View.INVISIBLE
-        findViewById<View>(R.id.TextBottom).visibility = View.INVISIBLE
+        intensityGraph.visibility = View.VISIBLE
+        maxInGraph.visibility = View.VISIBLE
+        calibrationBottom?.visibility ?: View.INVISIBLE
+        calibrationTop?.visibility ?: View.INVISIBLE
+        calibrationLeft?.visibility ?: View.INVISIBLE
+        calibrationRight?.visibility ?: View.INVISIBLE
+        TextRight.visibility = View.INVISIBLE
+        TextTop.visibility = View.INVISIBLE
+        TextLeft.visibility = View.INVISIBLE
+        TextBottom.visibility = View.INVISIBLE
         cameraCalibrationView!!.setCaptureZone()
     }
 
@@ -257,19 +247,18 @@ open class CameraActivity : Activity() {
      */
     private fun enableCalibration() {
         isCalibrating = true
-        val graphView: GraphView = findViewById(R.id.intensityGraph)
-        if (graphView.visibility == View.VISIBLE) {
-            graphView.visibility = View.INVISIBLE
+        if (intensityGraph.visibility == View.VISIBLE) {
+            intensityGraph.visibility = View.INVISIBLE
         }
-        findViewById<View>(R.id.maxInGraph).visibility = View.INVISIBLE
-        findViewById<View>(R.id.calibrationBottom).visibility = View.VISIBLE
-        findViewById<View>(R.id.calibrationTop).visibility = View.VISIBLE
-        findViewById<View>(R.id.calibrationLeft).visibility = View.VISIBLE
-        findViewById<View>(R.id.calibrationRight).visibility = View.VISIBLE
-        findViewById<View>(R.id.TextRight).visibility = View.VISIBLE
-        findViewById<View>(R.id.TextTop).visibility = View.VISIBLE
-        findViewById<View>(R.id.TextLeft).visibility = View.VISIBLE
-        findViewById<View>(R.id.TextBottom).visibility = View.VISIBLE
+        maxInGraph.visibility = View.INVISIBLE
+        calibrationBottom?.visibility ?: View.VISIBLE
+        calibrationTop?.visibility ?: View.VISIBLE
+        calibrationLeft?.visibility ?: View.VISIBLE
+        calibrationRight?.visibility ?: View.VISIBLE
+        TextRight.visibility = View.VISIBLE
+        TextTop.visibility = View.VISIBLE
+        TextLeft.visibility = View.VISIBLE
+        TextBottom.visibility = View.VISIBLE
         cameraCalibrationView!!.drawLines()
     }
 
@@ -397,10 +386,9 @@ open class CameraActivity : Activity() {
      * Updates the UI graph when a new picture is taken
      */
     private fun updateUIGraph() {
-        val graphView: GraphView = findViewById(R.id.intensityGraph)
         val updateGraphThread = Thread { // checking if the graphic contains series
-            if (graphView.series.isNotEmpty() && !isReferenceSaved) {
-                graphView.removeAllSeries()
+            if (intensityGraph.series.isNotEmpty() && !isReferenceSaved) {
+                intensityGraph.removeAllSeries()
             }
 
             //adding series to graph
@@ -432,9 +420,9 @@ open class CameraActivity : Activity() {
                     )
 
                 //setting manually X axis max and min bounds to see all points on graph
-                graphView.viewport.isXAxisBoundsManual = true
-                graphView.viewport.setMaxX((graphData!!.size - 1) * slope + intercept)
-                graphView.viewport.setMinX(xMin * slope + intercept)
+                intensityGraph.viewport.isXAxisBoundsManual = true
+                intensityGraph.viewport.setMaxX((graphData!!.size - 1) * slope + intercept)
+                intensityGraph.viewport.setMinX(xMin * slope + intercept)
             } else {
                 xAxisTitle = "Pixel position"
                 for (i in graphData!!.indices) {
@@ -449,20 +437,20 @@ open class CameraActivity : Activity() {
                 )
 
                 //setting manually X axis bound to see all points on graph
-                graphView.viewport.isXAxisBoundsManual = true
-                graphView.viewport.setMaxX(graphData!!.size.toDouble() - 1)
-                graphView.viewport.setMinX(xMin.toDouble())
+                intensityGraph.viewport.isXAxisBoundsManual = true
+                intensityGraph.viewport.setMaxX(graphData!!.size.toDouble() - 1)
+                intensityGraph.viewport.setMinX(xMin.toDouble())
             }
 
             //if the reference is saved and not the data, we remove previous data
             if (isReferenceSaved) {
-                if (graphView.series.size > 1) {
-                    graphView.series.removeAt(1)
+                if (intensityGraph.series.size > 1) {
+                    intensityGraph.series.removeAt(1)
                 }
             }
 
             //setting up X and Y axis title
-            val gridLabelRenderer = graphView.gridLabelRenderer
+            val gridLabelRenderer = intensityGraph.gridLabelRenderer
             gridLabelRenderer.horizontalAxisTitle = xAxisTitle
             gridLabelRenderer.verticalAxisTitle = "Intensity"
 
@@ -471,15 +459,14 @@ open class CameraActivity : Activity() {
             if (isReferenceSaved) {
                 series.color = Color.RED
             }
-            graphView.addSeries(series)
-            val maxInGraph = findViewById<TextView>(R.id.maxInGraph)
+            intensityGraph.addSeries(series)
             if (maxInGraph != null && maxValue.y != 0.0) {
                 maxInGraph.text = maxText
                 maxInGraph.visibility = View.VISIBLE
             }
             runOnUiThread {
-                if (graphView.visibility != View.VISIBLE) {
-                    graphView.visibility = View.VISIBLE
+                if (intensityGraph.visibility != View.VISIBLE) {
+                    intensityGraph.visibility = View.VISIBLE
                 }
             }
         }
@@ -493,8 +480,7 @@ open class CameraActivity : Activity() {
         if (graphData == null) {
             return
         } else {
-            val graphView: GraphView = findViewById(R.id.intensityGraph)
-            if (graphView.series.size > 0) graphView.removeAllSeries()
+            if (intensityGraph.series.size > 0) intensityGraph.removeAllSeries()
             isReferenceSaved = false
             isSampleSaved = false
         }
@@ -634,7 +620,7 @@ open class CameraActivity : Activity() {
         super.onResume()
         Log.e(TAG, "On Resume")
         if (textureView == null) { // prevents camera preview from freezing when app is resuming
-            textureView = findViewById(R.id.texture)
+            textureView = texture
             textureView!!.surfaceTextureListener = textureListener
             if (textureView!!.isAvailable) {
                 textureListener.onSurfaceTextureAvailable(
