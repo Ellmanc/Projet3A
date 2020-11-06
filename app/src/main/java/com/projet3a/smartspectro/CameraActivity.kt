@@ -625,7 +625,9 @@ open class CameraActivity : Activity() {
         super.onPause()
         Log.e(TAG, "On Pause")
         textureView = null
-        cameraDevice!!.close()
+        if (cameraDevice != null) {
+            cameraDevice!!.close()
+        }
     }
 
     public override fun onResume() {

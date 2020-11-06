@@ -290,7 +290,9 @@ class AnalysisActivity : Activity(), LocationListener {
                     latitude = location.latitude
                     longitude = location.longitude
                 }
-                stopLocationUpdates()
+                if (fusedLocationProviderClient != null) {
+                    stopLocationUpdates()
+                }
                 lastKnownPosition
             }
         }

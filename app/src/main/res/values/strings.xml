@@ -22,4 +22,8 @@
     <string name="save_picture_button">Save sample</string>
     <string name="clear_button_text">Clear graph</string>
     <string name="calibrate_button">Capture zone</string>
+    <string name="L612_nm">612 nm</string>
+    <string name="L546_nm">546 nm</string>
+    <string name="L436_nm">436 nm</string>
+    <string name="L488_nm">488 nm</string>
 </resources>
