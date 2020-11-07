@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -16,8 +17,10 @@ import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import kotlinx.android.synthetic.main.choices.*
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
 
 //private val backgroundHandler: Handler
@@ -134,6 +137,10 @@ class WavelengthCalibrationActivity : Activity() {
         val intensity = RGBDecoder.getImageIntensity(rgb)
         //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
         graphData = RGBDecoder.getMaxIntensity(intensity,intensity.size)
+        textureView!!.visibility = View.INVISIBLE
+        var imageView: ImageView? = findViewById(R.id.image)
+        imageView!!.visibility = View.VISIBLE
+        imageView!!.setImageBitmap(bitmap)
     }
 
     /**
