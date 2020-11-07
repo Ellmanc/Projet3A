@@ -270,16 +270,14 @@ open class CameraActivity : Activity() {
         }
 
         override fun onDisconnected(camera: CameraDevice) {
-            //cameraDevice.close();
+            cameraDevice?.close();
         }
 
         override fun onError(camera: CameraDevice, i: Int) {
-            if (cameraDevice != null) {
-                cameraDevice!!.close()
-                cameraDevice = null
-            }
+            cameraDevice!!.close()
         }
     }
+
 
     /**
      * opens the camera (if allowed), sets image dimension for capture
@@ -310,8 +308,7 @@ open class CameraActivity : Activity() {
             captureRequestBuilder =
                 cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             captureRequestBuilder!!.addTarget(surface)
-            val captureListener: CaptureCallback = object : CaptureCallback() {
-            }
+            val captureListener: CaptureCallback = object : CaptureCallback() {}
             cameraDevice!!.createCaptureSession(
                 listOf(surface),
                 object : CameraCaptureSession.StateCallback() {

@@ -1,6 +1,7 @@
 package com.projet3a.smartspectro
 
 import android.app.Activity
+import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.SurfaceTexture
@@ -21,6 +22,11 @@ import kotlinx.android.synthetic.main.wavelength_cal_layout.*
 
 //private val backgroundHandler: Handler
 class WavelengthCalibrationActivity : Activity() {
+
+    private var cameraId: String? = null
+    private var contextWrapper: ContextWrapper? = null
+    private var cameraHandler: CameraHandler? = null
+    private var graphData: DoubleArray? = null
     private var currentButton: Button? = null
     private var currentIndex = 0
     private var wavelengthCalibrationView: WavelengthCalibrationView? = null
@@ -36,6 +42,8 @@ class WavelengthCalibrationActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.wavelength_cal_layout)
+        contextWrapper = ContextWrapper(applicationContext)
+        cameraHandler = CameraHandler()
 
         //adding custom surface view above the texture view
         val calibrationViewLayout: ConstraintLayout = findViewById(R.id.calibrationViewLayout)
@@ -50,6 +58,9 @@ class WavelengthCalibrationActivity : Activity() {
     private fun enableListeners() {
 
         /* Adding listeners to the buttons */
+        buttonPicture!!.setOnClickListener(View.OnClickListener {
+            setImagesCapture()
+        })
         val validateButton = findViewById<Button>(R.id.validateCalButton)!!
         validateButton.setOnClickListener { view: View? ->
             for (ent in wavelengthRaysPositions) {
@@ -105,6 +116,24 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 3
         })
+    }
+
+    /**
+     * Processes camera's raw data to get intensity for each pixel in the capture zone
+     */
+    private fun setImagesCapture() {
+        if (null == cameraDevice) {
+            Log.e(TAG, "cameraDevice is null")
+            openCamera()
+            return
+        }
+        val width = textureView!!.width
+        val height = textureView!!.height
+        val bitmap = textureView!!.getBitmap(width, height) // getting raw data
+        val rgb = RGBDecoder.getRGBCode(bitmap,bitmap.width,bitmap.height)
+        val intensity = RGBDecoder.getImageIntensity(rgb)
+        //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
+        graphData = RGBDecoder.getMaxIntensity(intensity,intensity.size)
     }
 
     /**
@@ -206,12 +235,12 @@ class WavelengthCalibrationActivity : Activity() {
     private fun openCamera() {
         try {
             val cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
-            val cameraId = cameraManager.cameraIdList[0]
-            val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
+            cameraId = cameraManager.cameraIdList[0]
+            val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
             val map =
                 cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
             imageDimension = map.getOutputSizes(SurfaceTexture::class.java)[0]
-            cameraManager.openCamera(cameraId, stateCallback, null)
+            cameraManager.openCamera(cameraId!!, stateCallback, null)
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
@@ -220,7 +249,7 @@ class WavelengthCalibrationActivity : Activity() {
     /**
      * Creates a camera preview, a CaptureSession and sets various parameters for this CaptureSession (calls disableAutmatics method)
      */
-    protected fun createCameraPreview() {
+    private fun createCameraPreview() {
         try {
             val texture = textureView!!.surfaceTexture!!
             texture.setDefaultBufferSize(imageDimension!!.width, imageDimension!!.height)
@@ -228,15 +257,7 @@ class WavelengthCalibrationActivity : Activity() {
             captureRequestBuilder =
                 cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             captureRequestBuilder!!.addTarget(surface)
-            val captureListener: CaptureCallback = object : CaptureCallback() {
-                override fun onCaptureCompleted(
-                    session: CameraCaptureSession,
-                    request: CaptureRequest,
-                    result: TotalCaptureResult
-                ) {
-                    super.onCaptureCompleted(session, request, result)
-                }
-            }
+            val captureListener: CaptureCallback = object : CaptureCallback() {}
             cameraDevice!!.createCaptureSession(
                 listOf(surface),
                 object : CameraCaptureSession.StateCallback() {
@@ -249,7 +270,8 @@ class WavelengthCalibrationActivity : Activity() {
                         )
                         disableAutomatics(
                             captureRequestBuilder!!,
-                            cameraCaptureSession!!, captureListener
+                            cameraCaptureSession!!,
+                            captureListener
                         )
                     }
 
