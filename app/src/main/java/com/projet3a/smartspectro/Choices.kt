@@ -27,6 +27,10 @@ class Choices : Fragment() {
             var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             startActivity(i)
         }
+        buttonMeasure.setOnClickListener {
+            var i = Intent(this.context, CameraActivity::class.java)
+            startActivity(i)
+        }
     }
 
     }

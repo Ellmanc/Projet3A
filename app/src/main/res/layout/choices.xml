@@ -11,13 +11,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Calibrate"
-        app:layout_constraintEnd_toStartOf="@+id/button2"
+        app:layout_constraintEnd_toStartOf="@+id/buttonMeasure"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageView"
         app:layout_constraintBottom_toTopOf="@id/imageView3"/>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonMeasure"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Measure"
@@ -42,7 +42,7 @@
         android:layout_width="96dp"
         android:layout_height="64dp"
         android:src="@android:drawable/ic_menu_crop"
-        app:layout_constraintBottom_toTopOf="@+id/button2"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMeasure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
@@ -85,6 +85,6 @@
         app:layout_constraintBottom_toTopOf="@id/button4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/imageView3"
-        app:layout_constraintTop_toBottomOf="@id/button2" />
+        app:layout_constraintTop_toBottomOf="@id/buttonMeasure" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
