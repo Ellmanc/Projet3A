@@ -70,7 +70,7 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
         this.canvas = this.surfaceHolder.lockCanvas();
         canvas.drawLine(line.getXBegin(),line.getYBegin(),line.getXEnd(),line.getYEnd(),paint);
         this.surfaceHolder.unlockCanvasAndPost(this.canvas);
-        ((WavelengthCalibrationActivity)getContext()).updateWaveLengthPositions();
+        //((WavelengthCalibrationActivity)getContext()).updateWaveLengthPositions();
     }
 
     /**
@@ -88,6 +88,12 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
      * */
     public void translateLine(int shift){
         this.line.translateLineOnX(shift);
+        eraseLine();
+        drawLine();
+    }
+
+    public void changeXLine(int newX){
+        this.line.setX(newX);
         eraseLine();
         drawLine();
     }

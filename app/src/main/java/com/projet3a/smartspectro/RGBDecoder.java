@@ -31,10 +31,16 @@ public class RGBDecoder {
     /**
      * Computes for each pixel in array the intensity from its RGB encoding
      * */
-    public static double[] getImageIntensity(int[] rgb){
-        double [] intensity = new double[rgb.length];
-        for(int i = 0; i < intensity.length; i++){
-            intensity[i] = 0.2126*Color.red(rgb[i])+0.7152*Color.green(rgb[i])+0.0722*Color.blue(rgb[i]);
+    public static double[] getImageIntensity(int[] rgb, int width, int height){
+        double [] intensity = new double[width];
+        for(int j=0;j<intensity.length;j++){
+            intensity[j]=0;
+        }
+        for(int i = 0; i < rgb.length; i++){
+            intensity[i%width] = intensity[i%width] + 0.2126*Color.red(rgb[i])+0.7152*Color.green(rgb[i])+0.0722*Color.blue(rgb[i]);
+        }
+        for(int j=0;j<intensity.length;j++){
+            intensity[j] = intensity[j]/height;
         }
         return intensity;
     }

@@ -69,6 +69,19 @@ public class Line {
         this.yEnd += translateY;
     }
 
+    public void setX(int x){
+        setxBegin(x);
+        setxEnd(x);
+    }
+
+    public void setxBegin(int x){
+        this.xBegin = x;
+    }
+
+    public void setxEnd(int x){
+        this.xEnd = x;
+    }
+
     /**
      * Returns intersection point between this line and an other
      * */

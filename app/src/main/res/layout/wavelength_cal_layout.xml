@@ -21,60 +21,90 @@
 
     <Button
         android:id="@+id/validateCalButton"
-        android:layout_width="139dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@color/buttonBackground"
         android:text="@string/validate_measure_button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@id/clearPicture"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.533"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
 
     <Button
-        android:id="@+id/Button488"
-        android:layout_width="60dp"
+        android:id="@+id/clearPicture"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="480dp"
-        android:background="#FFFFFF"
-        android:text="@string/L488_nm"
-        app:layout_constraintStart_toEndOf="@id/Button436"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/clear"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/validateCalButton"
+        app:layout_constraintVertical_bias="0.95" />
+
+    <Button
+        android:id="@+id/buttonPicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/buttonBackground"
+        android:text="@string/take_picture"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
 
     <Button
         android:id="@+id/Button436"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="480dp"
         android:background="#FFFFFF"
         android:text="@string/L436_nm"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toStartOf="@id/Button488"
+        app:layout_constraintBottom_toTopOf="@+id/validateCalButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/calibrationViewLayout" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <Button
+        android:id="@+id/Button488"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:text="@string/L488_nm"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/validateCalButton"
+        app:layout_constraintStart_toEndOf="@id/Button436"
+        app:layout_constraintEnd_toStartOf="@id/Button546"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
 
     <Button
         android:id="@+id/Button546"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="480dp"
         android:background="#FFFFFF"
         android:text="@string/L546_nm"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/validateCalButton"
         app:layout_constraintStart_toEndOf="@+id/Button488"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/Button612"
+        app:layout_constraintVertical_bias="0.9" />
 
     <Button
         android:id="@+id/Button612"
-        android:layout_width="60dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="480dp"
-        android:layout_marginEnd="32dp"
         android:background="#FFFFFF"
         android:text="@string/L612_nm"
+        android:visibility="invisible"
+        app:layout_constraintVertical_bias="0.9"
+        app:layout_constraintBottom_toTopOf="@+id/validateCalButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.533"
         app:layout_constraintStart_toEndOf="@+id/Button546"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -83,34 +113,83 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="411dp"
-        android:layout_height="731dp"
+        android:layout_width="412dp"
+        android:layout_height="733dp"
         android:layout_alignParentTop="true"
+        android:contentDescription="@string/take_picture"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonPicture"
+    <TextView
+        android:id="@+id/positionValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/take_picture"
-        app:layout_constraintBottom_toTopOf="@+id/validateCalButton"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text=""
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Button546" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/intensityValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text=""
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/positionValue" />
+
+    <TextView
+        android:id="@+id/positionLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text=""
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toStartOf="@id/positionValue"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/maxSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text=""
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintTop_toBottomOf="@id/positionLine"
+        app:layout_constraintEnd_toStartOf="@id/intensityValue"/>
+
+    <TextView
+        android:id="@+id/minSearch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text=""
+        android:background="@color/colorPrimary"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toStartOf="@id/intensityValue"
+        app:layout_constraintTop_toBottomOf="@id/maxSearch" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

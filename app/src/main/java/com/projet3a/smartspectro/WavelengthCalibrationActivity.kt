@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
-import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -17,16 +16,15 @@ import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.view.View
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import kotlinx.android.synthetic.main.choices.*
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
 
-//private val backgroundHandler: Handler
+
 class WavelengthCalibrationActivity : Activity() {
 
     private var cameraId: String? = null
+    private var intensity: DoubleArray? = null
     private var contextWrapper: ContextWrapper? = null
     private var cameraHandler: CameraHandler? = null
     private var graphData: DoubleArray? = null
@@ -61,11 +59,14 @@ class WavelengthCalibrationActivity : Activity() {
     private fun enableListeners() {
 
         /* Adding listeners to the buttons */
-        buttonPicture!!.setOnClickListener(View.OnClickListener {
+        buttonPicture!!.setOnClickListener {
             setImagesCapture()
-        })
-        val validateButton = findViewById<Button>(R.id.validateCalButton)!!
-        validateButton.setOnClickListener { view: View? ->
+            allowWavelengthCalibration()
+        }
+        clearPicture!!.setOnClickListener{
+            clear()
+        }
+        validateCalButton.setOnClickListener {
             for (ent in wavelengthRaysPositions) {
                 if (ent == 0) {
                     Toast.makeText(
@@ -84,41 +85,68 @@ class WavelengthCalibrationActivity : Activity() {
             startActivity(intent)
         }
         Button436.setTextColor(Color.BLUE)
-        Button436.setOnClickListener(View.OnClickListener {
+        Button436.setOnClickListener {
+            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button436
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 0
-        })
+        }
         Button488.setTextColor(Color.argb(100, 30, 144, 255))
-        Button488.setOnClickListener(View.OnClickListener {
+        Button488.setOnClickListener {
+            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button488
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 1
-        })
+        }
         Button546.setTextColor(Color.GREEN)
-        Button546.setOnClickListener(View.OnClickListener {
+        Button546.setOnClickListener {
+            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button546
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 2
-        })
+        }
         Button612.setTextColor(Color.RED)
-        Button612.setOnClickListener(View.OnClickListener {
+        Button612.setOnClickListener {
+            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button612
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 3
-        })
+        }
+    }
+
+    private fun clear() {
+        image.visibility = View.INVISIBLE
+        textureView?.visibility ?: View.VISIBLE
+        Button436.visibility = View.INVISIBLE
+        Button488.visibility = View.INVISIBLE
+        Button546.visibility = View.INVISIBLE
+        Button612.visibility = View.INVISIBLE
+        validateCalButton.visibility = View.INVISIBLE
+        clearPicture.visibility = View.INVISIBLE
+        buttonPicture.visibility = View.VISIBLE
+
+    }
+
+    private fun allowWavelengthCalibration() {
+        Button436.visibility = View.VISIBLE
+        Button488.visibility = View.VISIBLE
+        Button546.visibility = View.VISIBLE
+        Button612.visibility = View.VISIBLE
+        validateCalButton.visibility = View.VISIBLE
+        clearPicture.visibility = View.VISIBLE
+        buttonPicture.visibility = View.INVISIBLE
     }
 
     /**
@@ -133,14 +161,13 @@ class WavelengthCalibrationActivity : Activity() {
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
-        val rgb = RGBDecoder.getRGBCode(bitmap,bitmap.width,bitmap.height)
-        val intensity = RGBDecoder.getImageIntensity(rgb)
+        val rgb = RGBDecoder.getRGBCode(bitmap, bitmap.width, bitmap.height)
+        intensity = RGBDecoder.getImageIntensity(rgb,bitmap.width, bitmap.height)
         //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
-        graphData = RGBDecoder.getMaxIntensity(intensity,intensity.size)
+        graphData = RGBDecoder.getMaxIntensity(intensity,intensity!!.size)
         textureView!!.visibility = View.INVISIBLE
-        var imageView: ImageView? = findViewById(R.id.image)
-        imageView!!.visibility = View.VISIBLE
-        imageView!!.setImageBitmap(bitmap)
+        image.visibility = View.VISIBLE
+        image.setImageBitmap(bitmap)
     }
 
     /**
@@ -188,9 +215,10 @@ class WavelengthCalibrationActivity : Activity() {
     /**
      * stores the current wavelength ray position. If the calibration line is misplaced, the value is not stored and an error message is displayed
      */
-    fun updateWaveLengthPositions() {
+    private fun updateWaveLengthPositions() {
         if (currentButton != null) {
-            val currentLinePosition = wavelengthCalibrationView!!.xPositionOfDrawnLine
+            val currentLinePosition =
+                searchMaxIntensity(wavelengthCalibrationView!!.xPositionOfDrawnLine)
             for (i in wavelengthRaysPositions.indices) {
                 if (i < currentIndex && wavelengthRaysPositions[i] > currentLinePosition) { // check if values in the tab before the currentIndex value are <= to the currentIndex value
                     Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
@@ -202,11 +230,37 @@ class WavelengthCalibrationActivity : Activity() {
                     return
                 }
             }
+            wavelengthCalibrationView!!.changeXLine(currentLinePosition)
             wavelengthRaysPositions[currentIndex] = currentLinePosition
         }
     }
 
-    var textureListener: SurfaceTextureListener = object : SurfaceTextureListener {
+    private fun searchMaxIntensity(currentLinePosition: Int): Int {
+        var res = 0
+        var max = 0.0
+        val dim = 25
+        val j = (currentLinePosition - dim / 2).coerceAtLeast(0)
+        val k = (currentLinePosition + dim / 2).coerceAtMost(intensity?.size!!)
+        for (i in j until k) {
+            if (intensity?.get(i)!! > max) {
+                res = i
+                max = intensity?.get(i)!!
+            }
+        }
+        val position = "x : $res"
+        positionValue!!.text = position
+        val inten = "i : $max"
+        intensityValue!!.text = inten
+        val line = "x0 : $currentLinePosition"
+        positionLine!!.text = line
+        val min = "min : $j"
+        minSearch!!.text = min
+        val max0 = "max : $k"
+        maxSearch!!.text = max0
+        return res
+    }
+
+    private var textureListener: SurfaceTextureListener = object : SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
             openCamera()
         }
@@ -338,12 +392,12 @@ class WavelengthCalibrationActivity : Activity() {
         Log.e(TAG, "On Resume")
         if (textureView == null) { // prevents camera preview from freezing when app is resumed
             textureView = findViewById(R.id.texture)
-            textureView!!.setSurfaceTextureListener(textureListener)
-            if (textureView!!.isAvailable()) {
+            textureView!!.surfaceTextureListener = textureListener
+            if (textureView!!.isAvailable) {
                 textureListener.onSurfaceTextureAvailable(
-                    textureView!!.getSurfaceTexture(),
-                    textureView!!.getWidth(),
-                    textureView!!.getHeight()
+                    textureView!!.surfaceTexture,
+                    textureView!!.width,
+                    textureView!!.height
                 )
             }
         }

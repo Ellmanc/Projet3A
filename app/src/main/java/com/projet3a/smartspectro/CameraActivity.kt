@@ -359,7 +359,7 @@ open class CameraActivity : Activity() {
             captureZone[0], captureZone[1], captureZone[2], captureZone[3]
         ) // getting raw data inside capture zone only
         val rgb = RGBDecoder.getRGBCode(captureZoneBitmap, captureZone[2], captureZone[3])
-        val intensity = RGBDecoder.getImageIntensity(rgb)
+        val intensity = RGBDecoder.getImageIntensity(rgb,captureZone[2], captureZone[3])
         //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
         graphData = RGBDecoder.getMaxIntensity(intensity, captureZone[2])
         saveCurrentMeasure()
