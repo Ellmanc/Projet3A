@@ -3,11 +3,13 @@ package com.projet3a.smartspectro
 import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.util.Size
@@ -19,6 +21,11 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class WavelengthCalibrationActivity : Activity() {
@@ -63,7 +70,7 @@ class WavelengthCalibrationActivity : Activity() {
             setImagesCapture()
             allowWavelengthCalibration()
         }
-        clearPicture!!.setOnClickListener{
+        clearPicture!!.setOnClickListener {
             clear()
         }
         validateCalButton.setOnClickListener {
@@ -86,43 +93,43 @@ class WavelengthCalibrationActivity : Activity() {
         }
         Button436.setTextColor(Color.BLUE)
         Button436.setOnClickListener {
-            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button436
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 0
+            updateWaveLengthPositions()
         }
         Button488.setTextColor(Color.argb(100, 30, 144, 255))
         Button488.setOnClickListener {
-            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button488
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 1
+            updateWaveLengthPositions()
         }
         Button546.setTextColor(Color.GREEN)
         Button546.setOnClickListener {
-            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button546
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 2
+            updateWaveLengthPositions()
         }
         Button612.setTextColor(Color.RED)
         Button612.setOnClickListener {
-            updateWaveLengthPositions()
             if (currentButton != null) {
                 currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
             }
             currentButton = Button612
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 3
+            updateWaveLengthPositions()
         }
     }
 
@@ -162,9 +169,10 @@ class WavelengthCalibrationActivity : Activity() {
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
         val rgb = RGBDecoder.getRGBCode(bitmap, bitmap.width, bitmap.height)
-        intensity = RGBDecoder.getImageIntensity(rgb,bitmap.width, bitmap.height)
+        intensity = RGBDecoder.getImageIntensity(rgb, bitmap.width, bitmap.height)
         //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
-        graphData = RGBDecoder.getMaxIntensity(intensity,intensity!!.size)
+        graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
+        saveinfo("test", bitmap)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
         image.setImageBitmap(bitmap)
@@ -405,5 +413,49 @@ class WavelengthCalibrationActivity : Activity() {
 
     companion object {
         private const val TAG = "Wavelength Calibration"
+    }
+
+    private fun saveinfo(text: String, graph: Bitmap) {
+        if (graph == null) {
+            Toast.makeText(
+                this@WavelengthCalibrationActivity,
+                "Please press Take Picture button before saving",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+            val currentDateAndTime = sdf.format(Date())
+            var outputStream: OutputStream? = null
+            val directory =
+                File(Environment.getExternalStorageDirectory().toString() + "/Documents")
+            //check whether Documents directory exists, if not, we create it
+            if (!directory.exists()) {
+                val result = directory.mkdirs()
+                if (!result) {
+                    Toast.makeText(this, "Unable to create directory", Toast.LENGTH_SHORT).show()
+                    return
+                }
+            }
+            val file = File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                text + "_" + currentDateAndTime + ".txt"
+            )
+            try {
+                outputStream = FileOutputStream(file, false)
+                for (i in graphData!!.indices) {
+                    outputStream.write("0,".toByteArray())
+                    outputStream.write("""${graphData!![i]}""".toByteArray())
+                }
+            } finally {
+                if (outputStream != null) {
+                    outputStream.close()
+                    Toast.makeText(
+                        this@WavelengthCalibrationActivity,
+                        "File successfully saved",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 }
