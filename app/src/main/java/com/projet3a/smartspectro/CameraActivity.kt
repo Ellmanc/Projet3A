@@ -56,6 +56,7 @@ open class CameraActivity : Activity() {
     private var cameraHandler: CameraHandler? = null
     private var graphData: DoubleArray? = null
     private val definitiveMeasures = HashMap<String, DoubleArray?>()
+    private var x: DoubleArray? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +71,8 @@ open class CameraActivity : Activity() {
     }
 
     /**
-     * Adds listeners on various UI components, the listener to the texture is added in the onResume method
+     * Adds listeners on various UI components, the listener to
+     * the texture is added in the onResume method
      */
     private fun enableListeners() {
 
@@ -102,8 +104,12 @@ open class CameraActivity : Activity() {
                 if (isReferenceSaved && intensityGraph.series.size >= 2) {
                     savePicture("Sample")
                     if (graphData != null && isReferenceSaved && isSampleSaved) {
-                        val intent = Intent(this@CameraActivity, AnalysisActivity::class.java)
-                        if (definitiveMeasures.containsKey("Reference") && definitiveMeasures.containsKey(
+                        val intent = Intent(
+                            this@CameraActivity,
+                            AnalysisActivity::class.java
+                        )
+                        if (definitiveMeasures.containsKey("Reference") &&
+                            definitiveMeasures.containsKey(
                                 "Sample"
                             )
                         ) {
@@ -211,7 +217,8 @@ open class CameraActivity : Activity() {
     }
 
     /**
-     * Called when capture zone button is pressed. Modifies the UI accordingly and saves current capture zone.
+     * Called when capture zone button is pressed. Modifies the UI accordingly and
+     * saves current capture zone.
      */
     private fun endCalibration() {
         isCalibrating = false
@@ -270,7 +277,7 @@ open class CameraActivity : Activity() {
         }
 
         override fun onDisconnected(camera: CameraDevice) {
-            cameraDevice?.close();
+            cameraDevice?.close()
         }
 
         override fun onError(camera: CameraDevice, i: Int) {
@@ -298,7 +305,8 @@ open class CameraActivity : Activity() {
     }
 
     /**
-     * Creates a camera preview, a CaptureSession and sets various parameters for this CaptureSession (calls disableAutmatics method)
+     * Creates a camera preview, a CaptureSession and sets various parameters for
+     * this CaptureSession (calls disableAutmatics method)
      */
     private fun createCameraPreview() {
         try {
@@ -359,9 +367,9 @@ open class CameraActivity : Activity() {
             captureZone[0], captureZone[1], captureZone[2], captureZone[3]
         ) // getting raw data inside capture zone only
         val rgb = RGBDecoder.getRGBCode(captureZoneBitmap, captureZone[2], captureZone[3])
-        val intensity = RGBDecoder.getImageIntensity(rgb,captureZone[2], captureZone[3])
-        //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
-        graphData = RGBDecoder.getMaxIntensity(intensity, captureZone[2])
+        val intensity = RGBDecoder.getImageIntensity(rgb, captureZone[2], captureZone[3])
+        graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
+        //graphData = RGBDecoder.getMaxIntensity(intensity, captureZone[2])
         saveCurrentMeasure()
         updateUIGraph()
     }
@@ -386,13 +394,16 @@ open class CameraActivity : Activity() {
             val slope = AppParameters.getInstance().slope
             val intercept = AppParameters.getInstance().intercept
             var begin =
-                AppParameters.getInstance().captureZone[0] // xBegin for the capture zone (pixel 0 by default)
+                AppParameters.getInstance().captureZone[0]
+            // xBegin for the capture zone (pixel 0 by default)
             val xMin = begin
-            if (slope != 0.0 && intercept != 0.0) { // if both are not equal to zero, it means that wavelength calibration has been done
+            if (slope != 0.0 && intercept != 0.0) {
+                // if both are not equal to zero, it means that wavelength calibration has been done
                 xAxisTitle = "Wavelength (nm)"
+                x = DoubleArray(graphData!!.size)
                 for (i in graphData!!.indices) { //getting wavelength from position
-                    val x = begin * slope + intercept
-                    values[i] = DataPoint(x, graphData!![i])
+                    x!![i] = (begin * slope + intercept).toInt().toDouble()
+                    values[i] = DataPoint(x!![i], graphData!![i])
                     if (graphData!![i] > maxValue.y) {
                         maxValue = values[i]!!
                     }
@@ -405,8 +416,8 @@ open class CameraActivity : Activity() {
 
                 //setting manually X axis max and min bounds to see all points on graph
                 intensityGraph.viewport.isXAxisBoundsManual = true
-                intensityGraph.viewport.setMaxX((graphData!!.size - 1) * slope + intercept)
-                intensityGraph.viewport.setMinX(xMin * slope + intercept)
+                intensityGraph.viewport.setMaxX(700.0)
+                intensityGraph.viewport.setMinX(400.0)
             } else {
                 xAxisTitle = "Pixel position"
                 for (i in graphData!!.indices) {
@@ -482,7 +493,8 @@ open class CameraActivity : Activity() {
     }
 
     /**
-     * disables some camera automatics (such as auto focus, lens stabilization) for the specified CameraCaptureSession
+     * disables some camera automatics (such as auto focus, lens stabilization) for
+     * the specified CameraCaptureSession
      */
     private fun disableAutomatics(
         captureBuilder: CaptureRequest.Builder,
@@ -515,7 +527,10 @@ open class CameraActivity : Activity() {
      */
     private fun displayCreationMessage() {
         runOnUiThread {
-            Toast.makeText(this@CameraActivity, "Creating graph...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this@CameraActivity, "Creating graph...",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -540,7 +555,10 @@ open class CameraActivity : Activity() {
             if (!directory.exists()) {
                 val result = directory.mkdirs()
                 if (!result) {
-                    Toast.makeText(this, "Unable to create directory", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this, "Unable to create directory",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return
                 }
             }
@@ -553,13 +571,13 @@ open class CameraActivity : Activity() {
                 val slope = AppParameters.getInstance().slope
                 val intercept = AppParameters.getInstance().intercept
                 var begin = AppParameters.getInstance().captureZone[0]
-                if (slope != 0.0 && intercept != 0.0) { //if wavelength calibration has been done
-                    for (i in graphData!!.indices) { //getting wavelength from position
-                        val x = begin * slope + intercept
-                        outputStream.write("$x,".toByteArray())
+                if (slope != 0.0 && intercept != 0.0) { //if wavelength calibration has been
+                    for (i in graphData!!.indices) {
+                        outputStream.write("${x!![i]},".toByteArray())
                         outputStream.write(
                             """${graphData!![i]}
-    """.toByteArray()
+                                |
+                            """.trimMargin().toByteArray()
                         )
                         begin++
                     }
@@ -568,7 +586,8 @@ open class CameraActivity : Activity() {
                         outputStream.write(("$begin,").toByteArray())
                         outputStream.write(
                             ("""${graphData!![i]}
-""").toByteArray()
+                                |
+                            """.trimMargin()).toByteArray()
                         )
                         begin++
                     }
@@ -590,6 +609,7 @@ open class CameraActivity : Activity() {
             }
         }
     }
+
 
     public override fun onPause() {
         super.onPause()

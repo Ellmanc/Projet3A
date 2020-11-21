@@ -30,35 +30,29 @@ public class RGBDecoder {
 
     /**
      * Computes for each pixel in array the intensity from its RGB encoding
-     * */
-    public static double[] getImageIntensity(int[] rgb, int width, int height){
-        double [] intensity = new double[width];
-        for(int j=0;j<intensity.length;j++){
-            intensity[j]=0;
-        }
-        for(int i = 0; i < rgb.length; i++){
-            intensity[i%width] = intensity[i%width] + 0.2126*Color.red(rgb[i])+0.7152*Color.green(rgb[i])+0.0722*Color.blue(rgb[i]);
-        }
-        for(int j=0;j<intensity.length;j++){
-            intensity[j] = intensity[j]/height;
+     */
+    public static double[] getImageIntensity(int[] rgb, int width, int height) {
+        double[] intensity = new double[rgb.length];
+        for (int i = 0; i < intensity.length; i++) {
+            intensity[i] = 0.2126 * Color.red(rgb[i]) + 0.7152 * Color.green(rgb[i]) + 0.0722 * Color.blue(rgb[i]);
         }
         return intensity;
     }
 
     /**
      * Calculates the intensity mean on each column for the captured frame
-     * */
-    public static double[] computeIntensityMean(double [] intensity, int width, int height) {
-        double [] intensityMean = new double[width];
+     */
+    public static double[] computeIntensityMean(double[] intensity, int width, int height) {
+        double[] intensityMean = new double[width];
         double meanValue = 0;
         int index;
-        for(int i = 0; i < intensityMean.length; i++){
+        for (int i = 0; i < intensityMean.length; i++) {
             index = i;
-            while(index < intensity.length){ //if the index is defined, we add it to the mean
+            while (index < intensity.length) { //if the index is defined, we add it to the mean
                 meanValue += intensity[index];
                 index += width; //go to next line value for the considered column
             }//if it is not, it means that we have to change column in our captured picture
-            intensityMean[i] = meanValue/height;
+            intensityMean[i] = meanValue / height;
             meanValue = 0;
         }
         return intensityMean;
@@ -66,21 +60,21 @@ public class RGBDecoder {
 
     /**
      * Gets maximum intensity for each column of the frame
-     * */
-    public static double[] getMaxIntensity(double [] intensity, int width){
-        double [] maxIntensity = new double[width];
+     */
+    public static double[] getMaxIntensity(double[] intensity, int width) {
+        double[] maxIntensity = new double[width];
         double maxValue = 0;
         int index;
-        for(int i = 0; i < maxIntensity.length; i++){
+        for (int i = 0; i < maxIntensity.length; i++) {
             index = i;
-            while(index < intensity.length){ //if the index is defined, we check if it is greater than the current maximum
-                if(intensity[index] > maxValue){
+            while (index < intensity.length) { //if the index is defined, we check if it is greater than the current maximum
+                if (intensity[index] > maxValue) {
                     maxValue = intensity[index];
                 }
                 index += width; //go to next line value for the considered column
             }//if it is not, it means that we have to change column in our captured picture
             maxIntensity[i] = maxValue;
-            maxValue= 0;
+            maxValue = 0;
         }
         return maxIntensity;
     }

@@ -170,8 +170,8 @@ class WavelengthCalibrationActivity : Activity() {
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
         val rgb = RGBDecoder.getRGBCode(bitmap, bitmap.width, bitmap.height)
         intensity = RGBDecoder.getImageIntensity(rgb, bitmap.width, bitmap.height)
-        //this.graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
-        graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
+        graphData = RGBDecoder.computeIntensityMean(intensity, bitmap.width, bitmap.height);
+        //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
         saveinfo("test", bitmap)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
@@ -250,9 +250,9 @@ class WavelengthCalibrationActivity : Activity() {
         val j = (currentLinePosition - dim / 2).coerceAtLeast(0)
         val k = (currentLinePosition + dim / 2).coerceAtMost(intensity?.size!!)
         for (i in j until k) {
-            if (intensity?.get(i)!! > max) {
+            if (graphData?.get(i)!! > max) {
                 res = i
-                max = intensity?.get(i)!!
+                max = graphData?.get(i)!!
             }
         }
         val position = "x : $res"

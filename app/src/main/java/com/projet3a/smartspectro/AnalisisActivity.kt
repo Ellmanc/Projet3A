@@ -9,6 +9,7 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -145,7 +146,8 @@ class AnalysisActivity : Activity(), LocationListener {
                     outputStream.write((dataPoint!!.x.toString() + ",").toByteArray())
                     outputStream.write(
                         """${dataPoint.y}
-    """.toByteArray()
+                            |
+                        """.trimMargin().toByteArray()
                     )
                 }
                 outputStream.close()
