@@ -59,6 +59,7 @@ class AnalysisActivity : Activity(), LocationListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.analysis_activity_layout)
         cameraActivityData = intent.extras
+        @Suppress("UNCHECKED_CAST")
         graphData =
             cameraActivityData!![CameraActivity.GRAPH_DATA_KEY] as HashMap<String, DoubleArray>?
         try {
@@ -281,7 +282,7 @@ class AnalysisActivity : Activity(), LocationListener {
     /**
      * defines location request and callback to get device position and starts location updates
      */
-    fun onConnected(bundle: Bundle?) {
+    fun onConnected() {
         locationRequest = LocationRequest()
         locationRequest!!.interval = 1000
         locationRequest!!.fastestInterval = 1000
@@ -301,8 +302,8 @@ class AnalysisActivity : Activity(), LocationListener {
         startLocationUpdates()
     }
 
-    fun onConnectionSuspended(i: Int) {}
-    fun onConnectionFailed(connectionResult: ConnectionResult) {}
+    fun onConnectionSuspended() {}
+    fun onConnectionFailed() {}
     override fun onLocationChanged(location: Location) {}
     public override fun onPause() {
         super.onPause()

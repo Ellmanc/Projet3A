@@ -26,6 +26,8 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import org.opencv.android.Utils
+import org.opencv.core.Mat
 
 
 class WavelengthCalibrationActivity : Activity() {
@@ -168,15 +170,19 @@ class WavelengthCalibrationActivity : Activity() {
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
-        //val imageopen = Image(bitmap)
-        //val subimage = imageopen.canny()
-        val rgb = RGBDecoder.getRGBCode(bitmap, bitmap.width, bitmap.height)
-        intensity = RGBDecoder.getImageIntensity(rgb, bitmap.width, bitmap.height)
-        graphData = RGBDecoder.computeIntensityMean(intensity, bitmap.width, bitmap.height)
+        var mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        val imageopen = Image(mat)
+        mat = imageopen.filtreMedian()
+        val subimage = Bitmap.createBitmap(mat.width(),mat.height(),Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(mat,subimage)
+        val rgb = RGBDecoder.getRGBCode(subimage, subimage.width, subimage.height)
+        intensity = RGBDecoder.getImageIntensity(rgb, subimage.width, subimage.height)
+        graphData = RGBDecoder.computeIntensityMean(intensity, subimage.width, subimage.height)
         //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
-        image.setImageBitmap(bitmap)
+        image.setImageBitmap(subimage)
     }
 
     /**
