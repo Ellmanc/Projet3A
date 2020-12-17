@@ -168,11 +168,12 @@ class WavelengthCalibrationActivity : Activity() {
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
+        //val imageopen = Image(bitmap)
+        //val subimage = imageopen.canny()
         val rgb = RGBDecoder.getRGBCode(bitmap, bitmap.width, bitmap.height)
         intensity = RGBDecoder.getImageIntensity(rgb, bitmap.width, bitmap.height)
-        graphData = RGBDecoder.computeIntensityMean(intensity, bitmap.width, bitmap.height);
+        graphData = RGBDecoder.computeIntensityMean(intensity, bitmap.width, bitmap.height)
         //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
-        saveinfo("test", bitmap)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
         image.setImageBitmap(bitmap)
