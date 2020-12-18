@@ -1,8 +1,5 @@
 package com.projet3a.smartspectro;
 
-import android.util.Log;
-
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
@@ -24,7 +21,6 @@ public class Image {
 
     public Mat Canny() {
         //Canny
-        Mat pre_canny = new Mat();
         Mat result_canny = new Mat();
         Imgproc.Canny(image, result_canny, 10, 100,3,false);
         Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(200, 50));
