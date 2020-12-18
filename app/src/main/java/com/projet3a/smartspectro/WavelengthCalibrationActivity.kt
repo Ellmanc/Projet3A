@@ -20,14 +20,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import kotlinx.android.synthetic.main.choices.*
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
+import org.opencv.android.Utils
+import org.opencv.core.Mat
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import org.opencv.android.Utils
-import org.opencv.core.Mat
 
 class WavelengthCalibrationActivity : Activity() {
 
@@ -46,6 +47,7 @@ class WavelengthCalibrationActivity : Activity() {
     private var imageDimension: Size? = null
     private val wavelengthRaysPositions = IntArray(4)
     private val backgroundHandler: Handler? = null
+    private var originShift: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,8 +172,9 @@ class WavelengthCalibrationActivity : Activity() {
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
         val imageopen = Image(mat)
+        val mat2 = imageopen.Canny()
+        originShift = imageopen.rectOrigin
         mat.release()
-        val mat2 = imageopen.filtreMedian()
         val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(mat2, subimage)
         mat2.release()
@@ -244,21 +247,24 @@ class WavelengthCalibrationActivity : Activity() {
                     return
                 }
             }
-            wavelengthCalibrationView!!.changeXLine(currentLinePosition)
+            wavelengthCalibrationView!!.changeXLine(currentLinePosition -
+                    (originShift?.minus(image.x.toInt())!!))
             wavelengthRaysPositions[currentIndex] = currentLinePosition
         }
     }
 
     private fun searchMaxIntensity(currentLinePosition: Int): Int {
+        val viewShift = image.x
         var res = 0
         var max = 0.0
         val dim = 25
-        val j = (currentLinePosition - dim / 2).coerceAtLeast(0)
-        val k = (currentLinePosition + dim / 2).coerceAtMost(intensity?.size!!)
+        val j = (currentLinePosition - viewShift.toInt() - dim / 2 ).coerceAtLeast(0)
+        val k = (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!!)
         for (i in j until k) {
-            if (graphData?.get(i)!! > max) {
-                res = i
-                max = graphData?.get(i)!!
+            if (graphData?.get((i))!! > max) {
+                res = (i + originShift!!).toInt()
+                max = graphData?.get((i))!!
+                Log.w("merde!!!!!",""+res)
             }
         }
         val position = "x : $res"
@@ -267,9 +273,9 @@ class WavelengthCalibrationActivity : Activity() {
         intensityValue!!.text = inten
         val line = "x0 : $currentLinePosition"
         positionLine!!.text = line
-        val min = "min : $j"
+        val min = "min : ${j+originShift!!}"
         minSearch!!.text = min
-        val max0 = "max : $k"
+        val max0 = "max : ${k+originShift!!}"
         maxSearch!!.text = max0
         return res
     }
