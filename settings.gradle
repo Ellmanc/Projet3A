@@ -1,2 +1,1 @@
-include ':app'
-rootProject.name = "Smart Spectro"
+include ':app', ':opencv-lib'

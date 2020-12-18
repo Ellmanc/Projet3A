@@ -1,4 +1,4 @@
-package com.example.smartspectro
+package com.projet3a.smartspectro
 
 import org.junit.Test
 

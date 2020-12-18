@@ -29,7 +29,6 @@ import java.util.*
 import org.opencv.android.Utils
 import org.opencv.core.Mat
 
-
 class WavelengthCalibrationActivity : Activity() {
 
     private var cameraId: String? = null
@@ -48,13 +47,11 @@ class WavelengthCalibrationActivity : Activity() {
     private val wavelengthRaysPositions = IntArray(4)
     private val backgroundHandler: Handler? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.wavelength_cal_layout)
         contextWrapper = ContextWrapper(applicationContext)
         cameraHandler = CameraHandler()
-
         //adding custom surface view above the texture view
         val calibrationViewLayout: ConstraintLayout = findViewById(R.id.calibrationViewLayout)
         wavelengthCalibrationView = WavelengthCalibrationView(this)
@@ -170,12 +167,14 @@ class WavelengthCalibrationActivity : Activity() {
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
-        var mat = Mat()
+        val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
         val imageopen = Image(mat)
-        mat = imageopen.filtreMedian()
-        val subimage = Bitmap.createBitmap(mat.width(),mat.height(),Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(mat,subimage)
+        mat.release()
+        val mat2 = imageopen.filtreMedian()
+        val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(mat2, subimage)
+        mat2.release()
         val rgb = RGBDecoder.getRGBCode(subimage, subimage.width, subimage.height)
         intensity = RGBDecoder.getImageIntensity(rgb, subimage.width, subimage.height)
         graphData = RGBDecoder.computeIntensityMean(intensity, subimage.width, subimage.height)
@@ -410,7 +409,7 @@ class WavelengthCalibrationActivity : Activity() {
             textureView!!.surfaceTextureListener = textureListener
             if (textureView!!.isAvailable) {
                 textureListener.onSurfaceTextureAvailable(
-                    textureView!!.surfaceTexture,
+                    textureView!!.surfaceTexture!!,
                     textureView!!.width,
                     textureView!!.height
                 )

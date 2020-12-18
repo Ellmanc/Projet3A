@@ -363,7 +363,7 @@ open class CameraActivity : Activity() {
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
         val captureZone = AppParameters.getInstance().captureZone
         val captureZoneBitmap = Bitmap.createBitmap(
-            bitmap,
+            bitmap!!,
             captureZone[0], captureZone[1], captureZone[2], captureZone[3]
         ) // getting raw data inside capture zone only
         val rgb = RGBDecoder.getRGBCode(captureZoneBitmap, captureZone[2], captureZone[3])
@@ -628,7 +628,7 @@ open class CameraActivity : Activity() {
             textureView!!.surfaceTextureListener = textureListener
             if (textureView!!.isAvailable) {
                 textureListener.onSurfaceTextureAvailable(
-                    textureView!!.surfaceTexture,
+                    textureView!!.surfaceTexture!!,
                     textureView!!.width,
                     textureView!!.height
                 )

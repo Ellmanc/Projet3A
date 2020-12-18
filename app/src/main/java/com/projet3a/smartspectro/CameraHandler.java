@@ -22,7 +22,7 @@ public class CameraHandler {
             int version = Build.VERSION.SDK_INT;
             if(version <= 22){
                 Log.e(TAG,"Cannot activate flash light, API level too low");
-                Toast flashError = Toast.makeText(context,"Cannot activate flash light, API level too low",Toast.LENGTH_LONG);
+                Toast flashError = Toast.makeText(context,"Cannot activate flash light, API level too low", Toast.LENGTH_LONG);
                 flashError.show();
 
             }else{

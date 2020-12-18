@@ -1,4 +1,4 @@
-package com.example.smartspectro
+package com.projet3a.smartspectro
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

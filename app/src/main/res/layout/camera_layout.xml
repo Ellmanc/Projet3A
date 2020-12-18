@@ -40,7 +40,8 @@
         android:text="@string/take_picture"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/save_picture_button" />
+        app:layout_constraintTop_toBottomOf="@+id/save_picture_button"
+        android:layout_marginLeft="80dp" />
 
     <Button
         android:id="@+id/save_reference_button"
@@ -52,7 +53,8 @@
         android:text="@string/save_reference_button"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texture" />
+        app:layout_constraintTop_toBottomOf="@+id/texture"
+        android:layout_marginLeft="8dp" />
 
     <Button
         android:id="@+id/save_picture_button"
@@ -91,7 +93,8 @@
         android:text="@string/clear_button_text"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texture" />
+        app:layout_constraintTop_toBottomOf="@+id/texture"
+        android:layout_marginRight="8dp" />
 
     <SeekBar
         android:id="@+id/calibrationRight"
@@ -142,7 +145,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/btn_takepicture"
-        app:layout_constraintTop_toBottomOf="@+id/clearButton" />
+        app:layout_constraintTop_toBottomOf="@+id/clearButton"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="104dp" />
 
 
     <TextView
@@ -156,7 +161,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="invisible" />
+        tools:visibility="invisible"
+        android:gravity="center_horizontal" />
 
     <TextView
         android:id="@+id/TextRight"
