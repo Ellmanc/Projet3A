@@ -27,4 +27,8 @@
     <string name="L436_nm">436 nm</string>
     <string name="L488_nm">488 nm</string>
     <string name="clear">Clear</string>
+    <string name="calibration_manuel">Manuel</string>
+    <string name="calibration_semi_auto">Semi-automatique</string>
+    <string name="calibration_auto">Automatique</string>
+    <string name="keyExtra">ButtonClicked</string>
 </resources>

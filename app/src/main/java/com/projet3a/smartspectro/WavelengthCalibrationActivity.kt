@@ -9,7 +9,6 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.util.Size
@@ -24,10 +23,6 @@ import kotlinx.android.synthetic.main.choices.*
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
 import org.opencv.android.Utils
 import org.opencv.core.Mat
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 class WavelengthCalibrationActivity : Activity() {
@@ -59,39 +54,25 @@ class WavelengthCalibrationActivity : Activity() {
         wavelengthCalibrationView = WavelengthCalibrationView(this)
         calibrationViewLayout.addView(wavelengthCalibrationView)
         enableListeners()
+        val ss: String? = intent.getStringExtra("@string/keyExtra")
+        when (ss) {
+            "Manuel" -> enableManuelCalibration()
+            "Automatique" -> enableAutoCalibration()
+            "Semi-automatique" -> enableSemiAutoCalibration()
+            else  -> Toast.makeText(
+                applicationContext,
+                "problem of button clicked",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
-    /**
-     * Adds listeners on various UI components
-     */
-    private fun enableListeners() {
+    private fun error() {
+        TODO("Not yet implemented")
+    }
 
+    private fun enableSemiAutoCalibration() {
         /* Adding listeners to the buttons */
-        buttonPicture!!.setOnClickListener {
-            setImagesCapture()
-            allowWavelengthCalibration()
-        }
-        clearPicture!!.setOnClickListener {
-            clear()
-        }
-        validateCalButton.setOnClickListener {
-            for (ent in wavelengthRaysPositions) {
-                if (ent == 0) {
-                    Toast.makeText(
-                        applicationContext,
-                        "Missing calibration for one wavelength value",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
-            }
-            val intent =
-                Intent(this@WavelengthCalibrationActivity, CameraActivity::class.java)
-            val lineData = findSlopeAndIntercept()
-            AppParameters.getInstance().slope = lineData[0]
-            AppParameters.getInstance().intercept = lineData[1]
-            startActivity(intent)
-        }
         Button436.setTextColor(Color.BLUE)
         Button436.setOnClickListener {
             if (currentButton != null) {
@@ -131,6 +112,126 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 3
             updateWaveLengthPositions()
+        }
+    }
+
+    private fun enableAutoCalibration() {
+        /* Adding listeners to the buttons */
+        Button436.setTextColor(Color.BLUE)
+        Button436.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button436
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 0
+            updateWaveLengthPositions()
+        }
+        Button488.setTextColor(Color.argb(100, 30, 144, 255))
+        Button488.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button488
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 1
+            updateWaveLengthPositions()
+        }
+        Button546.setTextColor(Color.GREEN)
+        Button546.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button546
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 2
+            updateWaveLengthPositions()
+        }
+        Button612.setTextColor(Color.RED)
+        Button612.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button612
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 3
+            updateWaveLengthPositions()
+        }
+    }
+
+    private fun enableManuelCalibration() {
+        /* Adding listeners to the buttons */
+        Button436.setTextColor(Color.BLUE)
+        Button436.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button436
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 0
+            updateWaveLengthPositions()
+        }
+        Button488.setTextColor(Color.argb(100, 30, 144, 255))
+        Button488.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button488
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 1
+            updateWaveLengthPositions()
+        }
+        Button546.setTextColor(Color.GREEN)
+        Button546.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button546
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 2
+            updateWaveLengthPositions()
+        }
+        Button612.setTextColor(Color.RED)
+        Button612.setOnClickListener {
+            if (currentButton != null) {
+                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
+            }
+            currentButton = Button612
+            currentButton!!.setBackgroundColor(Color.CYAN)
+            currentIndex = 3
+            updateWaveLengthPositions()
+        }
+    }
+
+    /**
+     * Adds listeners on various UI components
+     */
+    private fun enableListeners() {
+        /* Adding listeners to the buttons */
+        buttonPicture!!.setOnClickListener {
+            setImagesCapture()
+            allowWavelengthCalibration()
+        }
+        clearPicture!!.setOnClickListener {
+            clear()
+        }
+        validateCalButton.setOnClickListener {
+            for (ent in wavelengthRaysPositions) {
+                if (ent == 0) {
+                    Toast.makeText(
+                        applicationContext,
+                        "Missing calibration for one wavelength value",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+            }
+            val intent =
+                Intent(this@WavelengthCalibrationActivity, CameraActivity::class.java)
+            val lineData = findSlopeAndIntercept()
+            AppParameters.getInstance().slope = lineData[0]
+            AppParameters.getInstance().intercept = lineData[1]
+            startActivity(intent)
         }
     }
 
@@ -247,8 +348,10 @@ class WavelengthCalibrationActivity : Activity() {
                     return
                 }
             }
-            wavelengthCalibrationView!!.changeXLine(currentLinePosition -
-                    (originShift?.minus(image.x.toInt())!!))
+            wavelengthCalibrationView!!.changeXLine(
+                currentLinePosition -
+                        (originShift?.minus(image.x.toInt())!!)
+            )
             wavelengthRaysPositions[currentIndex] = currentLinePosition
         }
     }
@@ -258,13 +361,13 @@ class WavelengthCalibrationActivity : Activity() {
         var res = 0
         var max = 0.0
         val dim = 25
-        val j = (currentLinePosition - viewShift.toInt() - dim / 2 ).coerceAtLeast(0)
+        val j = (currentLinePosition - viewShift.toInt() - dim / 2).coerceAtLeast(0)
         val k = (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!!)
         for (i in j until k) {
             if (graphData?.get((i))!! > max) {
-                res = (i + originShift!!).toInt()
+                res = (i + originShift!!)
                 max = graphData?.get((i))!!
-                Log.w("merde!!!!!",""+res)
+                Log.w("merde!!!!!", "" + res)
             }
         }
         val position = "x : $res"
@@ -273,9 +376,9 @@ class WavelengthCalibrationActivity : Activity() {
         intensityValue!!.text = inten
         val line = "x0 : $currentLinePosition"
         positionLine!!.text = line
-        val min = "min : ${j+originShift!!}"
+        val min = "min : ${j + originShift!!}"
         minSearch!!.text = min
-        val max0 = "max : ${k+originShift!!}"
+        val max0 = "max : ${k + originShift!!}"
         maxSearch!!.text = max0
         return res
     }
@@ -427,7 +530,7 @@ class WavelengthCalibrationActivity : Activity() {
         private const val TAG = "Wavelength Calibration"
     }
 
-    private fun saveinfo(text: String, graph: Bitmap) {
+    /*private fun saveinfo(text: String, graph: Bitmap) {
         if (graph == null) {
             Toast.makeText(
                 this@WavelengthCalibrationActivity,
@@ -469,5 +572,5 @@ class WavelengthCalibrationActivity : Activity() {
                 }
             }
         }
-    }
+    }*/
 }

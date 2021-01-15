@@ -19,5 +19,13 @@
         android:id="@+id/choices"
         android:name="com.projet3a.smartspectro.Choices"
         android:label="@string/second_fragment_label"
-        tools:layout="@layout/choices"/>
+        tools:layout="@layout/choices">
+        <action
+                android:id="@+id/action_choices_to_wavelengthCalibrationChoices"
+                app:destination="@id/wavelengthCalibrationChoices" />
+    </fragment>
+    <fragment
+            android:id="@+id/wavelengthCalibrationChoices"
+            android:name="com.projet3a.smartspectro.WavelengthCalibrationChoices"
+            android:label="WavelengthCalibrationChoices" />
 </navigation>

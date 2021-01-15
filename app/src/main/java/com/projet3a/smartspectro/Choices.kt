@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.choices.*
 
 /**
@@ -24,8 +25,7 @@ class Choices : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         buttonCalibrate.setOnClickListener {
-            var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
-            startActivity(i)
+            findNavController().navigate(R.id.action_choices_to_wavelengthCalibrationChoices)
         }
         buttonMeasure.setOnClickListener {
             var i = Intent(this.context, CameraActivity::class.java)
