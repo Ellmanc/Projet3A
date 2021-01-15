@@ -15,10 +15,8 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
-import android.view.TextureView.SurfaceTextureListener
+import android.view.TextureView.*
 import android.view.View
-import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -29,22 +27,14 @@ import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.floor
 
 /**
  * Created by Rémy Cordeau-Mirani on 20/09/2019.
  */
 open class CameraActivity : Activity() {
-    private var lastSeekBarValLeft = 0
-    private var lastSeekBarValRight = 0
-    private var lastSeekBarValBottom = 0
-    private var lastSeekBarValTop = 0
-    private var isDefaultCalibrationDone = false
     private var isReferenceSaved = false
     private var isSampleSaved = false
-    private var isCalibrating = false
-    private var cameraCalibrationView: CameraCalibrationView? = null
     private var textureView: TextureView? = null
     private var cameraId: String? = null
     private var cameraDevice: CameraDevice? = null
@@ -57,16 +47,13 @@ open class CameraActivity : Activity() {
     private var graphData: DoubleArray? = null
     private val definitiveMeasures = HashMap<String, DoubleArray?>()
     private var x: DoubleArray? = null
+    private var captureZoneIsAdjusted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.camera_layout)
         contextWrapper = ContextWrapper(applicationContext)
         cameraHandler = CameraHandler()
-
-        //adding custom surface view above the texture view
-        cameraCalibrationView = CameraCalibrationView(this)
-        calibrationViewLayout.addView(cameraCalibrationView)
         enableListeners()
     }
 
@@ -77,183 +64,72 @@ open class CameraActivity : Activity() {
     private fun enableListeners() {
 
         /* Adding listeners to the buttons */
-        btn_takepicture!!.setOnClickListener(View.OnClickListener {
-            if (isCalibrating) return@OnClickListener
-            if (isDefaultCalibrationDone) {
-                displayCreationMessage()
-                setImagesCapture()
-            } else {
-                Toast.makeText(
-                    this@CameraActivity,
-                    "Please calibrate before taking picture",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
-        save_reference_button!!.setOnClickListener(View.OnClickListener {
+        btn_takepicture!!.setOnClickListener {
+            displayCreationMessage()
+            setImagesCapture()
+        }
+        save_reference_button!!.setOnClickListener {
             try {
-                if (isCalibrating || isReferenceSaved) return@OnClickListener
                 savePicture("Reference")
+                allowSample()
             } catch (e: IOException) {
                 Log.e(TAG, e.toString())
             }
-        })
-        save_picture_button!!.setOnClickListener(View.OnClickListener {
-            if (isCalibrating) return@OnClickListener
+        }
+        save_picture_button!!.setOnClickListener {
             try {
-                if (isReferenceSaved && intensityGraph.series.size >= 2) {
-                    savePicture("Sample")
-                    if (graphData != null && isReferenceSaved && isSampleSaved) {
-                        val intent = Intent(
-                            this@CameraActivity,
-                            AnalysisActivity::class.java
-                        )
-                        if (definitiveMeasures.containsKey("Reference") &&
-                            definitiveMeasures.containsKey(
-                                "Sample"
-                            )
-                        ) {
-                            intent.putExtra(GRAPH_DATA_KEY, definitiveMeasures)
-                            startActivity(intent)
-                        } else {
-                            Toast.makeText(
-                                applicationContext,
-                                "Missing measurement",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                } else {
-                    Toast.makeText(
+                savePicture("Sample")
+                if (graphData != null && isReferenceSaved && isSampleSaved) {
+                    val intent = Intent(
                         this@CameraActivity,
-                        "You must first save the reference",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        AnalysisActivity::class.java
+                    )
+                    if (definitiveMeasures.containsKey("Reference") &&
+                        definitiveMeasures.containsKey(
+                            "Sample"
+                        )
+                    ) {
+                        AppParameters.getInstance().reference = definitiveMeasures["Reference"]
+                            ?.toList() as ArrayList<Double>?
+                        AppParameters.getInstance().sample = definitiveMeasures["Sample"]
+                            ?.toList() as ArrayList<Double>?
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "Missing measurement",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             } catch (e: IOException) {
                 Log.e(TAG, e.toString())
             }
-        })
-        clearButton!!.setOnClickListener(View.OnClickListener {
-            if (isCalibrating) return@OnClickListener
+        }
+        clearButton!!.setOnClickListener {
             clearGraph()
-        })
-        calibrationButton!!.setOnClickListener {
-            if (!isDefaultCalibrationDone) {
-                isDefaultCalibrationDone = true
-            }
-            if (!isCalibrating) {
-                enableCalibration()
-            } else {
-                endCalibration()
-            }
+            clearSample()
         }
     }
 
-    /**
-     * Adds listeners on seekbars when calibrationCameraView is fully initialized
-     */
-    fun enableSeekBarsListeners() {
-        calibrationBottom!!.max = cameraCalibrationView!!.height
-        calibrationBottom!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
-                val shift = abs(progress - lastSeekBarValBottom)
-                if (progress > lastSeekBarValBottom) { /*Seekbar moved to the right*/
-                    cameraCalibrationView!!.moveLine("Bottom line", shift)
-                } else if (progress < lastSeekBarValBottom) { /*Seekbar moved to the left*/
-                    cameraCalibrationView!!.moveLine("Bottom line", -shift)
-                }
-                lastSeekBarValBottom = progress
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        calibrationTop!!.max = cameraCalibrationView!!.height
-        calibrationTop!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
-                val shift = abs(progress - lastSeekBarValTop)
-                if (progress > lastSeekBarValTop) { /*Seekbar moved to the right*/
-                    cameraCalibrationView!!.moveLine("Top line", shift)
-                } else if (progress < lastSeekBarValTop) { /*Seekbar moved to the left*/
-                    cameraCalibrationView!!.moveLine("Top line", -shift)
-                }
-                lastSeekBarValTop = progress
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        calibrationRight!!.max = cameraCalibrationView!!.width
-        calibrationRight!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
-                val shift = abs(progress - lastSeekBarValRight)
-                if (progress > lastSeekBarValRight) { /*Seekbar moved to the right*/
-                    cameraCalibrationView!!.moveLine("Right line", shift)
-                } else if (progress < lastSeekBarValRight) { /*Seekbar moved to the left*/
-                    cameraCalibrationView!!.moveLine("Right line", -shift)
-                }
-                lastSeekBarValRight = progress
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        calibrationLeft!!.max = cameraCalibrationView!!.width
-        calibrationLeft!!.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, b: Boolean) {
-                val shift = abs(progress - lastSeekBarValLeft)
-                if (progress > lastSeekBarValLeft) { /*Seekbar moved to the right*/
-                    cameraCalibrationView!!.moveLine("Left line", shift)
-                } else if (progress < lastSeekBarValLeft) { /*Seekbar moved to the left*/
-                    cameraCalibrationView!!.moveLine("Left line", -shift)
-                }
-                lastSeekBarValLeft = progress
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
+    private fun captureZoneAdjustment() {
+        val captureZone = AppParameters.getInstance().captureZone
+        val height = textureView!!.height
+        captureZone[1] =
+            (captureZone[1].toDouble() * (height.toDouble() / captureZone[4].toDouble())).toInt()
+        captureZone[3] =
+            (captureZone[3].toDouble() * (height.toDouble() / captureZone[4].toDouble())).toInt()
+        AppParameters.getInstance().captureZone = captureZone
     }
 
-    /**
-     * Called when capture zone button is pressed. Modifies the UI accordingly and
-     * saves current capture zone.
-     */
-    private fun endCalibration() {
-        isCalibrating = false
-        cameraCalibrationView!!.eraseLines()
-        intensityGraph.visibility = View.VISIBLE
-        maxInGraph.visibility = View.VISIBLE
-        calibrationBottom.visibility = View.INVISIBLE
-        calibrationTop.visibility = View.INVISIBLE
-        calibrationLeft.visibility = View.INVISIBLE
-        calibrationRight.visibility = View.INVISIBLE
-        TextRight.visibility = View.INVISIBLE
-        TextTop.visibility = View.INVISIBLE
-        TextLeft.visibility = View.INVISIBLE
-        TextBottom.visibility = View.INVISIBLE
-        cameraCalibrationView!!.setCaptureZone()
+    private fun clearSample() {
+        save_reference_button.visibility = VISIBLE
+        save_picture_button.visibility = INVISIBLE
     }
 
-    /**
-     * Called when capture zone button is pressed. Modifies the UI accordingly.
-     */
-    private fun enableCalibration() {
-        isCalibrating = true
-        if (intensityGraph.visibility == View.VISIBLE) {
-            intensityGraph.visibility = View.INVISIBLE
-        }
-        maxInGraph.visibility = View.INVISIBLE
-        calibrationBottom.visibility = View.VISIBLE
-        calibrationTop.visibility = View.VISIBLE
-        calibrationLeft.visibility = View.VISIBLE
-        calibrationRight.visibility = View.VISIBLE
-        TextRight.visibility = View.VISIBLE
-        TextTop.visibility = View.VISIBLE
-        TextLeft.visibility = View.VISIBLE
-        TextBottom.visibility = View.VISIBLE
-        cameraCalibrationView!!.drawLines()
+    private fun allowSample() {
+        save_reference_button.visibility = INVISIBLE
+        save_picture_button.visibility = VISIBLE
     }
 
     private var textureListener: SurfaceTextureListener = object : SurfaceTextureListener {
@@ -358,6 +234,10 @@ open class CameraActivity : Activity() {
             openCamera()
             return
         }
+        if (!captureZoneIsAdjusted) {
+            captureZoneAdjustment()
+            captureZoneIsAdjusted = true
+        }
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
@@ -367,8 +247,8 @@ open class CameraActivity : Activity() {
             captureZone[0], captureZone[1], captureZone[2], captureZone[3]
         ) // getting raw data inside capture zone only
         val rgb = RGBDecoder.getRGBCode(captureZoneBitmap, captureZone[2], captureZone[3])
-        val intensity = RGBDecoder.getImageIntensity(rgb, captureZone[2], captureZone[3])
-        graphData = RGBDecoder.computeIntensityMean(intensity,captureZone[2],captureZone[3]);
+        val intensity = RGBDecoder.getImageIntensity(rgb)
+        graphData = RGBDecoder.computeIntensityMean(intensity, captureZone[2], captureZone[3])
         //graphData = RGBDecoder.getMaxIntensity(intensity, captureZone[2])
         saveCurrentMeasure()
         updateUIGraph()
@@ -472,22 +352,19 @@ open class CameraActivity : Activity() {
      * Clears graph and updates UI accordingly
      */
     private fun clearGraph() {
-        if (graphData == null) {
-            return
-        } else {
-            if (intensityGraph.series.size > 0) intensityGraph.removeAllSeries()
-            isReferenceSaved = false
-            isSampleSaved = false
-        }
+        intensityGraph.removeAllSeries()
+        isReferenceSaved = false
+        isSampleSaved = false
+        graphData = null
     }
 
     /**
      * saves the frame's data in a map
      */
     private fun saveCurrentMeasure() {
-        if (!isReferenceSaved && !isSampleSaved) { // we are trying to capture the reference
+        if (!isReferenceSaved) { // we are trying to capture the reference
             definitiveMeasures["Reference"] = graphData
-        } else if (isReferenceSaved && !isSampleSaved) {
+        } else {
             definitiveMeasures["Sample"] = graphData
         }
     }

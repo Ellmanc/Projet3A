@@ -43,6 +43,7 @@ class WavelengthCalibrationActivity : Activity() {
     private val wavelengthRaysPositions = IntArray(4)
     private val backgroundHandler: Handler? = null
     private var originShift: Int? = null
+    private var captureZone: IntArray = IntArray(5)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +55,7 @@ class WavelengthCalibrationActivity : Activity() {
         wavelengthCalibrationView = WavelengthCalibrationView(this)
         calibrationViewLayout.addView(wavelengthCalibrationView)
         enableListeners()
-        when (intent.getStringExtra("@string/keyExtra")) {
+        when (AppParameters.getInstance().button) {
             "Manuel" -> enableManuelCalibration()
             "Automatique" -> enableAutoCalibration()
             "Semi-automatique" -> enableSemiAutoCalibration()
@@ -226,8 +227,17 @@ class WavelengthCalibrationActivity : Activity() {
             val lineData = findSlopeAndIntercept()
             AppParameters.getInstance().slope = lineData[0]
             AppParameters.getInstance().intercept = lineData[1]
+            captureZone[0] = ((400 - lineData[1]) / lineData[0]).toInt()
+            captureZone[2] = ((700 - lineData[1]) / lineData[0]).toInt() - captureZone[0]
+            AppParameters.getInstance().captureZone = captureZone
             startActivity(intent)
         }
+    }
+
+    private fun findZone(): IntArray {
+        val result = IntArray(4)
+
+        return result
     }
 
     private fun clear() {
@@ -270,13 +280,16 @@ class WavelengthCalibrationActivity : Activity() {
         val imageopen = Image(mat)
         val mat2 = imageopen.Canny()
         originShift = imageopen.rectOrigin
-        mat.release()
+        captureZone[1] = imageopen.yOrigin
+        captureZone[3] = mat2.height()
+        captureZone[4] = height
+            mat.release()
         val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(mat2, subimage)
         mat2.release()
         val rgb = RGBDecoder.getRGBCode(subimage, subimage.width, subimage.height)
-        intensity = RGBDecoder.getImageIntensity(rgb, subimage.width, subimage.height)
-        graphData = RGBDecoder.computeIntensityMean(intensity, subimage.width, subimage.height)
+        intensity = RGBDecoder.getImageIntensity(rgb)
+        graphData = RGBDecoder.computeIntensityMean(intensity!!, subimage.width, subimage.height)
         //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
@@ -357,7 +370,7 @@ class WavelengthCalibrationActivity : Activity() {
         var max = 0.0
         val dim = 25
         val j = (currentLinePosition - viewShift.toInt() - dim / 2).coerceAtLeast(0)
-        val k = (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!!)
+        val k = (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!!-1)
         for (i in j until k) {
             if (graphData?.get((i))!! > max) {
                 res = (i + originShift!!)

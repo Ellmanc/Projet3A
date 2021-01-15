@@ -49,4 +49,9 @@ public class Image {
     public int getRectOrigin() {
         return rect_mini.x;
     }
+
+    public int getYOrigin(){
+        return rect_mini.y;
+    }
+
 }

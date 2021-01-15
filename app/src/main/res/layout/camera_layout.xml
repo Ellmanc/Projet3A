@@ -1,210 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical"
-    tools:context="com.projet3a.smartspectro.CameraActivity">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        tools:context="com.projet3a.smartspectro.CameraActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/calibrationViewLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="183dp"
-        android:layout_alignParentTop="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/calibrationViewLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="183dp"
+            android:layout_alignParentTop="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <TextureView
-        android:id="@+id/texture"
-        android:layout_width="wrap_content"
-        android:layout_height="183dp"
-        android:layout_alignParentTop="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/texture"
+            android:layout_width="wrap_content"
+            android:layout_height="183dp"
+            android:layout_alignParentTop="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_takepicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/buttonBackground"
-        android:text="@string/take_picture"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/save_picture_button"
-        android:layout_marginLeft="80dp" />
+            android:id="@+id/btn_takepicture"
+            android:layout_width="116dp"
+            android:layout_height="49dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@color/buttonBackground"
+            android:text="@string/take_picture"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/texture" />
 
     <Button
-        android:id="@+id/save_reference_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/buttonBackground"
-        android:text="@string/save_reference_button"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texture"
-        android:layout_marginLeft="8dp" />
+            android:id="@+id/save_reference_button"
+            android:layout_width="116dp"
+            android:layout_height="49dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/buttonBackground"
+            android:text="@string/save_reference_button"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/clearButton"
+            app:layout_constraintStart_toEndOf="@+id/btn_takepicture"
+            app:layout_constraintTop_toBottomOf="@+id/texture" />
 
     <Button
-        android:id="@+id/save_picture_button"
-        android:layout_width="116dp"
-        android:layout_height="49dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:background="@color/buttonBackground"
-        android:text="@string/save_picture_button"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toStartOf="@+id/clearButton"
-        app:layout_constraintStart_toEndOf="@+id/save_reference_button"
-        app:layout_constraintTop_toBottomOf="@+id/texture" />
+            android:id="@+id/save_picture_button"
+            android:layout_width="116dp"
+            android:layout_height="49dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:background="@color/buttonBackground"
+            android:text="@string/save_picture_button"
+            android:textSize="12sp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toStartOf="@+id/clearButton"
+            app:layout_constraintStart_toEndOf="@+id/btn_takepicture"
+            app:layout_constraintTop_toBottomOf="@+id/texture" />
 
     <com.jjoe64.graphview.GraphView
-        android:id="@+id/intensityGraph"
-        android:layout_width="0dp"
-        android:layout_height="276dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texture"
-        app:layout_constraintVertical_bias="0.964" />
+            android:id="@+id/intensityGraph"
+            android:layout_width="0dp"
+            android:layout_height="420dp"
+            android:layout_alignParentBottom="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/texture"
+            app:layout_constraintVertical_bias="0.964" />
 
     <Button
-        android:id="@+id/clearButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="@color/buttonBackground"
-        android:text="@string/clear_button_text"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/texture"
-        android:layout_marginRight="8dp" />
-
-    <SeekBar
-        android:id="@+id/calibrationRight"
-        android:layout_width="298dp"
-        android:layout_height="37dp"
-        android:layout_marginBottom="30dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/calibrationTop"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <SeekBar
-        android:id="@+id/calibrationTop"
-        android:layout_width="298dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="30dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/calibrationLeft"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <SeekBar
-        android:id="@+id/calibrationBottom"
-        android:layout_width="298dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="54dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <SeekBar
-        android:id="@+id/calibrationLeft"
-        android:layout_width="298dp"
-        android:layout_height="30dp"
-        android:layout_marginBottom="30dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/calibrationBottom"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/calibrationButton"
-        android:layout_width="94dp"
-        android:layout_height="47dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="104dp"
-        android:background="@color/buttonBackground"
-        android:text="@string/calibrate_button"
-        android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/btn_takepicture"
-        app:layout_constraintTop_toBottomOf="@+id/clearButton"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="104dp" />
-
+            android:id="@+id/clearButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/buttonBackground"
+            android:text="@string/clear_button_text"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/texture"
+            android:layout_marginRight="8dp" />
 
     <TextView
-        android:id="@+id/maxInGraph"
-        android:layout_width="0dp"
-        android:layout_height="27dp"
-        android:layout_marginBottom="284dp"
-        android:textAlignment="center"
-        android:textColor="#F44336"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="invisible"
-        android:gravity="center_horizontal" />
-
-    <TextView
-        android:id="@+id/TextRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="41dp"
-        android:text="@string/right"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/TextTop"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <TextView
-        android:id="@+id/TextTop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="41dp"
-        android:text="@string/top"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/TextLeft"
-        tools:layout_editor_absoluteX="3dp"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <TextView
-        android:id="@+id/TextLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="42dp"
-        android:text="@string/left"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/TextBottom"
-        tools:layout_editor_absoluteX="3dp"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <TextView
-        android:id="@+id/TextBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:text="@string/bottom"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="0dp"
-        app:layout_constraintStart_toStartOf="parent" />
+            android:id="@+id/maxInGraph"
+            android:layout_width="0dp"
+            android:layout_height="27dp"
+            android:layout_marginBottom="420dp"
+            android:textAlignment="center"
+            android:textColor="#F44336"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.491"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="invisible"
+            android:gravity="center_horizontal" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

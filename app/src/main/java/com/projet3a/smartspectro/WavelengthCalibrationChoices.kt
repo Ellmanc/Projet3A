@@ -27,19 +27,19 @@ class WavelengthCalibrationChoices : Fragment() {
         buttonSemiAuto.setOnClickListener {
             var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonSemiAuto.text as String
-            i.putExtra("@string/keyExtra", value)
+            AppParameters.getInstance().button = value
             startActivity(i)
         }
         buttonAutomatique.setOnClickListener {
             var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonAutomatique.text as String
-            i.putExtra("@string/keyExtra", value)
+            AppParameters.getInstance().button = value
             startActivity(i)
         }
         buttonManuel.setOnClickListener {
             var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonManuel.text as String
-            i.putExtra("@string/keyExtra", value)
+            AppParameters.getInstance().button = value
             startActivity(i)
         }
     }

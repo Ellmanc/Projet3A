@@ -1,5 +1,9 @@
 package com.projet3a.smartspectro;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Singleton that contains all app parameters (slope, intercept, capture zone...)
  */
@@ -9,13 +13,16 @@ public final class AppParameters {
     private int[] captureZone;
     private double slope;
     private double intercept;
+    private String button;
+    private Double[] reference;
+    private Double[] sample;
 
-    private AppParameters(){
+    private AppParameters() {
         super();
     }
 
-    public static final AppParameters getInstance(){
-        if(AppParameters.instance == null){
+    public static final AppParameters getInstance() {
+        if (AppParameters.instance == null) {
             //synchronized keyword prevents any multiple instantiations by several threads
             synchronized (AppParameters.class){
                 if(AppParameters.instance == null){
@@ -28,27 +35,51 @@ public final class AppParameters {
 
     /* Getters and setters */
 
-    public void setCaptureZone(int[] array){
+    public void setSample(ArrayList<Double> r) {
+        this.reference = r.toArray(new Double[0]);
+    }
+
+    public void setReference(ArrayList<Double> r) {
+        this.sample = r.toArray(new Double[0]);
+    }
+
+    public void setCaptureZone(int[] array) {
         this.captureZone = array;
     }
 
-    public void setSlope(double s){
+    public void setSlope(double s) {
         this.slope = s;
     }
 
-    public void setIntercept(double i){
+    public void setButton(String s) {
+        this.button = s;
+    }
+
+    public void setIntercept(double i) {
         this.intercept = i;
     }
 
-    public int[] getCaptureZone(){
+    public ArrayList<Double> getReference() {
+        return new ArrayList(Arrays.asList(this.reference));
+    }
+
+    public ArrayList<Double> getSample() {
+        return new ArrayList(Arrays.asList(this.sample));
+    }
+
+    public int[] getCaptureZone() {
         return this.captureZone;
     }
 
-    public double getSlope(){
+    public double getSlope() {
         return this.slope;
     }
 
-    public double getIntercept(){
+    public String getButton() {
+        return this.button;
+    }
+
+    public double getIntercept() {
         return this.intercept;
     }
 }
