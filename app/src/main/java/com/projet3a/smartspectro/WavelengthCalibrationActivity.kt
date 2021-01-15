@@ -54,8 +54,7 @@ class WavelengthCalibrationActivity : Activity() {
         wavelengthCalibrationView = WavelengthCalibrationView(this)
         calibrationViewLayout.addView(wavelengthCalibrationView)
         enableListeners()
-        val ss: String? = intent.getStringExtra("@string/keyExtra")
-        when (ss) {
+        when (intent.getStringExtra("@string/keyExtra")) {
             "Manuel" -> enableManuelCalibration()
             "Automatique" -> enableAutoCalibration()
             "Semi-automatique" -> enableSemiAutoCalibration()
@@ -65,10 +64,6 @@ class WavelengthCalibrationActivity : Activity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-    }
-
-    private fun error() {
-        TODO("Not yet implemented")
     }
 
     private fun enableSemiAutoCalibration() {
