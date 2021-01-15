@@ -77,7 +77,7 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton = Button436
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 0
-            updateWaveLengthPositions()
+            updateWaveLengthPositionsSemiAuto()
         }
         Button488.setTextColor(Color.argb(100, 30, 144, 255))
         Button488.setOnClickListener {
@@ -87,7 +87,7 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton = Button488
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 1
-            updateWaveLengthPositions()
+            updateWaveLengthPositionsSemiAuto()
         }
         Button546.setTextColor(Color.GREEN)
         Button546.setOnClickListener {
@@ -97,7 +97,7 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton = Button546
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 2
-            updateWaveLengthPositions()
+            updateWaveLengthPositionsSemiAuto()
         }
         Button612.setTextColor(Color.RED)
         Button612.setOnClickListener {
@@ -107,7 +107,7 @@ class WavelengthCalibrationActivity : Activity() {
             currentButton = Button612
             currentButton!!.setBackgroundColor(Color.CYAN)
             currentIndex = 3
-            updateWaveLengthPositions()
+            updateWaveLengthPositionsSemiAuto()
         }
     }
 
@@ -115,43 +115,19 @@ class WavelengthCalibrationActivity : Activity() {
         /* Adding listeners to the buttons */
         Button436.setTextColor(Color.BLUE)
         Button436.setOnClickListener {
-            if (currentButton != null) {
-                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
-            }
-            currentButton = Button436
-            currentButton!!.setBackgroundColor(Color.CYAN)
-            currentIndex = 0
-            updateWaveLengthPositions()
+            //TODO
         }
         Button488.setTextColor(Color.argb(100, 30, 144, 255))
         Button488.setOnClickListener {
-            if (currentButton != null) {
-                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
-            }
-            currentButton = Button488
-            currentButton!!.setBackgroundColor(Color.CYAN)
-            currentIndex = 1
-            updateWaveLengthPositions()
+            //TODO
         }
         Button546.setTextColor(Color.GREEN)
         Button546.setOnClickListener {
-            if (currentButton != null) {
-                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
-            }
-            currentButton = Button546
-            currentButton!!.setBackgroundColor(Color.CYAN)
-            currentIndex = 2
-            updateWaveLengthPositions()
+            //TODO
         }
         Button612.setTextColor(Color.RED)
         Button612.setOnClickListener {
-            if (currentButton != null) {
-                currentButton!!.setBackgroundColor(Color.argb(100, 187, 222, 251))
-            }
-            currentButton = Button612
-            currentButton!!.setBackgroundColor(Color.CYAN)
-            currentIndex = 3
-            updateWaveLengthPositions()
+            //TODO
         }
     }
 
@@ -342,6 +318,31 @@ class WavelengthCalibrationActivity : Activity() {
      * stores the current wavelength ray position. If the calibration line is misplaced, the value is not stored and an error message is displayed
      */
     private fun updateWaveLengthPositions() {
+        if (currentButton != null) {
+            val currentLinePosition = wavelengthCalibrationView!!.xPositionOfDrawnLine
+            for (i in wavelengthRaysPositions.indices) {
+                if (i < currentIndex && wavelengthRaysPositions[i] > currentLinePosition) { // check if values in the tab before the currentIndex value are <= to the currentIndex value
+                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                } else if (i > currentIndex && wavelengthRaysPositions[i] > 0 && wavelengthRaysPositions[i] <= currentLinePosition) { // check if values in the tab after the currentIndex value are >= to the currentIndex value
+                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+            }
+            wavelengthCalibrationView!!.changeXLine(
+                currentLinePosition -
+                        (originShift?.minus(image.x.toInt())!!)
+            )
+            wavelengthRaysPositions[currentIndex] = currentLinePosition
+        }
+    }
+
+    /**
+     * stores the current wavelength ray position. If the calibration line is misplaced, the value is not stored and an error message is displayed
+     */
+    private fun updateWaveLengthPositionsSemiAuto() {
         if (currentButton != null) {
             val currentLinePosition =
                 searchMaxIntensity(wavelengthCalibrationView!!.xPositionOfDrawnLine)
