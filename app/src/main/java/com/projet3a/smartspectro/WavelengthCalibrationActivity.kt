@@ -210,12 +210,6 @@ class WavelengthCalibrationActivity : Activity() {
         }
     }
 
-    private fun findZone(): IntArray {
-        val result = IntArray(4)
-
-        return result
-    }
-
     private fun clear() {
         image.visibility = View.INVISIBLE
         textureView?.visibility ?: View.VISIBLE
