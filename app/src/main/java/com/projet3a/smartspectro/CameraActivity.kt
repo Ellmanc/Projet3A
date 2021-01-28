@@ -114,16 +114,6 @@ open class CameraActivity : Activity() {
         }
     }
 
-    private fun captureZoneAdjustment() {
-        val captureZone = AppParameters.getInstance().captureZone
-        val height = textureView!!.height
-        captureZone[1] =
-            (captureZone[1].toDouble() * (height.toDouble() / captureZone[4].toDouble())).toInt()
-        captureZone[3] =
-            (captureZone[3].toDouble() * (height.toDouble() / captureZone[4].toDouble())).toInt()
-        AppParameters.getInstance().captureZone = captureZone
-    }
-
     private fun clearSample() {
         save_reference_button.visibility = VISIBLE
         save_picture_button.visibility = INVISIBLE
@@ -235,10 +225,6 @@ open class CameraActivity : Activity() {
             Log.e(TAG, "cameraDevice is null")
             openCamera()
             return
-        }
-        if (!captureZoneIsAdjusted) {
-            captureZoneAdjustment()
-            captureZoneIsAdjusted = true
         }
         val width = textureView!!.width
         val height = textureView!!.height

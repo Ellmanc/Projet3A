@@ -40,7 +40,7 @@ class WavelengthCalibrationActivity : Activity() {
     private var cameraCaptureSession: CameraCaptureSession? = null
     private var captureRequestBuilder: CaptureRequest.Builder? = null
     private var imageDimension: Size? = null
-    private val wavelengthRaysPositions = IntArray(4)
+    private var wavelengthRaysPositions = IntArray(4)
     private val backgroundHandler: Handler? = null
     private var originShift: Int? = null
     private var captureZone: IntArray = IntArray(5)
@@ -145,8 +145,7 @@ class WavelengthCalibrationActivity : Activity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-        wavelengthCalibrationView?.x = position.toFloat()
-        displayLine()
+        wavelengthCalibrationView?.changeXLine(position + image.x.toInt() )
     }
 
     private fun calibrate() {
@@ -188,13 +187,14 @@ class WavelengthCalibrationActivity : Activity() {
             thirdPic = fourthPic
             fourthPic = temp
         }
-        wavelengthRaysPositions[0] = firstPic + originShift!!
-        wavelengthRaysPositions[1] = secondPic + originShift!!
-        wavelengthRaysPositions[2] = thirdPic + originShift!!
-        wavelengthRaysPositions[3] = fourthPic + originShift!!
+        wavelengthRaysPositions[0] = firstPic //+ originShift!!
+        wavelengthRaysPositions[1] = secondPic //+ originShift!!
+        wavelengthRaysPositions[2] = thirdPic //+ originShift!!
+        wavelengthRaysPositions[3] = fourthPic //+ originShift!!
     }
 
     private fun maxElement(): Int {
+        var shift = 50
         var max = 0.0;
         var maxIndex = -1;
         var element: Double;
@@ -217,20 +217,20 @@ class WavelengthCalibrationActivity : Activity() {
         var temp = 0
         var temp2 = 0
         while (j < list[8] + 1) {
-            if (list[j + 2] > (maxIndex - 25) && !terminer) {
-                if (list[j + 2] > (maxIndex + 25)) {
-                    if (list[j + 1] < (maxIndex - 25)) {
-                        temp = maxIndex + 25
+            if (list[j + 2] > (maxIndex - shift) && !terminer) {
+                if (list[j + 2] > (maxIndex + shift)) {
+                    if (list[j + 1] < (maxIndex - shift)) {
+                        temp = maxIndex + shift
                         temp2 = list[j + 2]
-                        list[j + 2] = maxIndex - 25
+                        list[j + 2] = maxIndex - shift
                         terminer = true
                     } else {
-                        list[j + 1] = maxIndex + 25
+                        list[j + 1] = maxIndex + shift
                         terminer = true
                         j = list[8] + 1
                     }
                 } else {
-                    if (list[j + 1] > (maxIndex - 25)) {
+                    if (list[j + 1] > (maxIndex - shift)) {
                         while(j<list[8]-1){
                             list[j+1] = list[j+3]
                             list[j+2] = list[j+4]
@@ -239,9 +239,9 @@ class WavelengthCalibrationActivity : Activity() {
                         list[8] -= 2
                         terminer = true
                     } else {
-                        list[j + 2] = maxIndex - 25
+                        list[j + 2] = maxIndex - shift
                         terminer = true
-                        if (list[j + 3] > maxIndex + 25) {
+                        if (list[j + 3] > maxIndex + shift) {
                             j = list[8] + 1
                         }
                     }
@@ -338,12 +338,18 @@ class WavelengthCalibrationActivity : Activity() {
                     return@setOnClickListener
                 }
             }
+            if(AppParameters.getInstance().button == "Automatique"){
+                wavelengthRaysPositions[0] += originShift!!
+                wavelengthRaysPositions[1] += originShift!!
+                wavelengthRaysPositions[2] += originShift!!
+                wavelengthRaysPositions[3] += originShift!!
+            }
             val intent =
                 Intent(this@WavelengthCalibrationActivity, CameraActivity::class.java)
             val lineData = findSlopeAndIntercept()
             AppParameters.getInstance().slope = lineData[0]
             AppParameters.getInstance().intercept = lineData[1]
-            captureZone[0] = ((400 - lineData[1]) / lineData[0]).toInt()
+            captureZone[0] = (((400 - lineData[1]) / lineData[0]).toInt()).coerceAtLeast(0)
             captureZone[2] = ((700 - lineData[1]) / lineData[0]).toInt() - captureZone[0]
             AppParameters.getInstance().captureZone = captureZone
             startActivity(intent)
@@ -390,9 +396,8 @@ class WavelengthCalibrationActivity : Activity() {
         val imageopen = Image(mat)
         val mat2 = imageopen.Canny()
         originShift = imageopen.rectOrigin
-        captureZone[1] = imageopen.yOrigin
-        captureZone[3] = mat2.height()
-        captureZone[4] = height
+        captureZone[1] = (549 * imageopen.yOrigin) / height
+        captureZone[3] = (549 * mat2.height()) / height
         mat.release()
         val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(mat2, subimage)
