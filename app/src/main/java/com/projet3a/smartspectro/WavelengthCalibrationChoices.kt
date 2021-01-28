@@ -23,21 +23,21 @@ class WavelengthCalibrationChoices : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var value = "";
+        var value: String
         buttonSemiAuto.setOnClickListener {
-            var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
+            val i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonSemiAuto.text as String
             AppParameters.getInstance().button = value
             startActivity(i)
         }
         buttonAutomatique.setOnClickListener {
-            var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
+            val i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonAutomatique.text as String
             AppParameters.getInstance().button = value
             startActivity(i)
         }
         buttonManuel.setOnClickListener {
-            var i = Intent(this.context, WavelengthCalibrationActivity::class.java)
+            val i = Intent(this.context, WavelengthCalibrationActivity::class.java)
             value = buttonManuel.text as String
             AppParameters.getInstance().button = value
             startActivity(i)

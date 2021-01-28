@@ -28,7 +28,7 @@ class Choices : Fragment() {
             findNavController().navigate(R.id.action_choices_to_wavelengthCalibrationChoices)
         }
         buttonMeasure.setOnClickListener {
-            var i = Intent(this.context, CameraActivity::class.java)
+            val i = Intent(this.context, CameraActivity::class.java)
             startActivity(i)
         }
     }

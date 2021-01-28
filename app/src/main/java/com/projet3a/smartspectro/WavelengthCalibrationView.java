@@ -1,5 +1,6 @@
 package com.projet3a.smartspectro;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -22,24 +22,24 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
     private Canvas canvas;
     private int width;
     private int height;
-    private float startDragX, currenDragX = 0;
+    private float startDragX;
 
-    public WavelengthCalibrationView(Context context){
+    public WavelengthCalibrationView(Context context) {
         super(context);
 
-        if(this.surfaceHolder == null){
+        if (this.surfaceHolder == null) {
             this.surfaceHolder = getHolder();
             this.surfaceHolder.addCallback(this);
         }
 
-        if(this.paint == null){ // paint to draw lines
+        if (this.paint == null) { // paint to draw lines
             this.paint = new Paint();
             this.paint.setColor(Color.RED);
             this.paint.setStrokeWidth(5);
             this.paint.setStyle(Paint.Style.STROKE);
         }
 
-        if(this.clearPaint == null){ // paint to erase lines
+        if (this.clearPaint == null) { // paint to erase lines
             this.clearPaint = new Paint();
             this.clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         }
@@ -51,48 +51,49 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
 
     /**
      * inits the Line object that will be drawn
-     * */
+     */
     private void initLine() {
         this.height = getHeight();
         this.width = getWidth();
-        int heightOfLine= (int) Math.floor(0.78*this.height);
-        this.line = new Line("Calibration line",this.width/2,0,this.width/2,heightOfLine);
-        ((WavelengthCalibrationActivity)getContext()).displayLine();
+        int heightOfLine = (int) Math.floor(0.78 * this.height);
+        this.line = new Line(this.width / 2, 0, this.width / 2, heightOfLine);
+        ((WavelengthCalibrationActivity) getContext()).displayLine();
     }
 
     /**
      * draws the line in the view, and updates the position of the line in the wavelength calibration activity
-     * */
-    public void drawLine(){
-        if(this.line == null){
+     */
+    public void drawLine() {
+        if (this.line == null) {
             initLine();
         }
         this.canvas = this.surfaceHolder.lockCanvas();
-        canvas.drawLine(line.getXBegin(),line.getYBegin(),line.getXEnd(),line.getYEnd(),paint);
+        canvas.drawLine(line.getXBegin(), line.getYBegin(), line.getXEnd(), line.getYEnd(), paint);
         this.surfaceHolder.unlockCanvasAndPost(this.canvas);
         //((WavelengthCalibrationActivity)getContext()).updateWaveLengthPositions();
     }
 
     /**
      * erases the line in the view
-     * */
-    public void eraseLine(){
+     */
+    public void eraseLine() {
         this.canvas = this.surfaceHolder.lockCanvas();
-        this.canvas.drawRect(0,0,width,height,clearPaint);
+        this.canvas.drawRect(0, 0, width, height, clearPaint);
         this.surfaceHolder.unlockCanvasAndPost(this.canvas);
     }
 
     /**
      * translates the line in the view
+     *
      * @param shift : the shift to translate the line
-     * */
-    public void translateLine(int shift){
+     */
+    public void translateLine(int shift) {
         this.line.translateLineOnX(shift);
         eraseLine();
         drawLine();
     }
 
-    public void changeXLine(int newX){
+    public void changeXLine(int newX) {
         this.line.setX(newX);
         eraseLine();
         drawLine();
@@ -100,22 +101,20 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
 
     /**
      * returns the x coordinate of a point of the line
-     * */
-    public int getXPositionOfDrawnLine(){
+     */
+    public int getXPositionOfDrawnLine() {
         return this.line.getXBegin();
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder){
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
         initLine();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
-    /**
-     * Moves line on touch or on drag
-     * */
-    public boolean onTouchEvent(MotionEvent event){
-        if(AppParameters.getInstance().button != "Automatique") {
+    public boolean onTouchEvent(MotionEvent event) {
+        if (!AppParameters.getInstance().button.equals("Automatique")) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) { // ACTION_DOWN -> finger is detected on screen
                 startDragX = event.getX();
                 int shift = (int) (startDragX - this.line.getXBegin());
@@ -123,15 +122,13 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
 
             } else if (event.getAction() == MotionEvent.ACTION_UP) { // ACTION_UP -> finger is removed from screen
                 if (Math.abs(startDragX - this.line.getXBegin()) < 30) { // if the finger was put 30 pixels around the drawn line, the line is translated to the right/left accordingly
-                    currenDragX = event.getX();
+                    float currenDragX = event.getX();
                     int shift = (int) (currenDragX - startDragX);
                     this.translateLine(shift);
                 }
             }
-            return true;
-        }else{
-            return true;
         }
+        return true;
     }
 
     @Override

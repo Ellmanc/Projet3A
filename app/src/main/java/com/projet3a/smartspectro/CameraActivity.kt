@@ -17,8 +17,6 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.TextureView.*
 import android.view.View
-import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -45,17 +43,14 @@ open class CameraActivity : Activity() {
     private var imageDimension: Size? = null
     private val backgroundHandler: Handler? = null
     private var contextWrapper: ContextWrapper? = null
-    private var cameraHandler: CameraHandler? = null
     private var graphData: DoubleArray? = null
     private val definitiveMeasures = HashMap<String, DoubleArray?>()
     private var x: DoubleArray? = null
-    private var captureZoneIsAdjusted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.camera_layout)
         contextWrapper = ContextWrapper(applicationContext)
-        cameraHandler = CameraHandler()
         enableListeners()
     }
 
@@ -503,6 +498,5 @@ open class CameraActivity : Activity() {
 
     companion object {
         private const val TAG = "Camera Activity"
-        const val GRAPH_DATA_KEY = "Graph Data"
     }
 }

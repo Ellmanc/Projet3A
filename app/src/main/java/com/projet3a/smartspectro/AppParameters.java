@@ -2,7 +2,6 @@ package com.projet3a.smartspectro;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Singleton that contains all app parameters (slope, intercept, capture zone...)
@@ -21,7 +20,7 @@ public final class AppParameters {
         super();
     }
 
-    public static final AppParameters getInstance() {
+    public static AppParameters getInstance() {
         if (AppParameters.instance == null) {
             //synchronized keyword prevents any multiple instantiations by several threads
             synchronized (AppParameters.class){
@@ -60,11 +59,11 @@ public final class AppParameters {
     }
 
     public ArrayList<Double> getReference() {
-        return new ArrayList(Arrays.asList(this.reference));
+        return new ArrayList<>(Arrays.asList(this.reference));
     }
 
     public ArrayList<Double> getSample() {
-        return new ArrayList(Arrays.asList(this.sample));
+        return new ArrayList<>(Arrays.asList(this.sample));
     }
 
     public int[] getCaptureZone() {

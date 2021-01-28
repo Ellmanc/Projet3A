@@ -30,7 +30,6 @@ class WavelengthCalibrationActivity : Activity() {
     private var cameraId: String? = null
     private var intensity: DoubleArray? = null
     private var contextWrapper: ContextWrapper? = null
-    private var cameraHandler: CameraHandler? = null
     private var graphData: DoubleArray? = null
     private var currentButton: Button? = null
     private var currentIndex = 0
@@ -50,7 +49,6 @@ class WavelengthCalibrationActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.wavelength_cal_layout)
         contextWrapper = ContextWrapper(applicationContext)
-        cameraHandler = CameraHandler()
         //adding custom surface view above the texture view
         val calibrationViewLayout: ConstraintLayout = findViewById(R.id.calibrationViewLayout)
         wavelengthCalibrationView = WavelengthCalibrationView(this)
@@ -153,37 +151,38 @@ class WavelengthCalibrationActivity : Activity() {
         list[0] = 0
         list[1] = graphData!!.size
         list[8] = 2
+        var temp: Int
         var firstPic = maxElement()
         var secondPic = maxElement()
         if (secondPic < firstPic) {
-            var temp = firstPic
+            temp = firstPic
             firstPic = secondPic
             secondPic = temp
         }
         var thirdPic = maxElement()
         if (thirdPic < firstPic) {
-            var temp = firstPic
+            temp = firstPic
             firstPic = thirdPic
             thirdPic = temp
         }
         if (thirdPic in (firstPic + 1) until secondPic) {
-            var temp = secondPic
+            temp = secondPic
             secondPic = thirdPic
             thirdPic = temp
         }
         var fourthPic = maxElement()
         if (fourthPic < firstPic) {
-            var temp = firstPic
+            temp = firstPic
             firstPic = fourthPic
             fourthPic = temp
         }
         if (fourthPic in (firstPic + 1) until secondPic) {
-            var temp = secondPic
+            temp = secondPic
             secondPic = fourthPic
             fourthPic = temp
         }
         if (fourthPic in (secondPic + 1) until thirdPic) {
-            var temp = thirdPic
+            temp = thirdPic
             thirdPic = fourthPic
             fourthPic = temp
         }
@@ -194,17 +193,17 @@ class WavelengthCalibrationActivity : Activity() {
     }
 
     private fun maxElement(): Int {
-        var shift = 50
-        var max = 0.0;
-        var maxIndex = -1;
-        var element: Double;
-        var size = list[8]
+        val shift = 50
+        var max = 0.0
+        var maxIndex = -1
+        var element: Double
+        val size = list[8]
 
         var j = size - 1
         while (j > -1) {
-            var i = list[j - 1];
+            var i = list[j - 1]
             while (i < list[j]) {
-                element = graphData!![i];
+                element = graphData!![i]
                 if (element > max) {
                     max = element
                     maxIndex = i
@@ -251,7 +250,7 @@ class WavelengthCalibrationActivity : Activity() {
             }
             if (terminer && j != list[8] + 1) {
                 j += 2
-                var temp3 = 0
+                var temp3: Int
                 while (j < list[8] + 1) {
                     temp3 = list[j + 1]
                     list[j + 1] = temp
