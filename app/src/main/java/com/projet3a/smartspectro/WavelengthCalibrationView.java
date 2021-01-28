@@ -115,19 +115,23 @@ public class WavelengthCalibrationView extends SurfaceView implements SurfaceHol
      * Moves line on touch or on drag
      * */
     public boolean onTouchEvent(MotionEvent event){
-        if (event.getAction() == MotionEvent.ACTION_DOWN) { // ACTION_DOWN -> finger is detected on screen
-            startDragX = event.getX();
-            int shift = (int)(startDragX - this.line.getXBegin());
-            this.translateLine(shift);
-
-        }else if (event.getAction() == MotionEvent.ACTION_UP){ // ACTION_UP -> finger is removed from screen
-            if(Math.abs(startDragX-this.line.getXBegin()) < 30){ // if the finger was put 30 pixels around the drawn line, the line is translated to the right/left accordingly
-                currenDragX = event.getX();
-                int shift = (int)(currenDragX - startDragX);
+        if(AppParameters.getInstance().button != "Automatique") {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) { // ACTION_DOWN -> finger is detected on screen
+                startDragX = event.getX();
+                int shift = (int) (startDragX - this.line.getXBegin());
                 this.translateLine(shift);
+
+            } else if (event.getAction() == MotionEvent.ACTION_UP) { // ACTION_UP -> finger is removed from screen
+                if (Math.abs(startDragX - this.line.getXBegin()) < 30) { // if the finger was put 30 pixels around the drawn line, the line is translated to the right/left accordingly
+                    currenDragX = event.getX();
+                    int shift = (int) (currenDragX - startDragX);
+                    this.translateLine(shift);
+                }
             }
+            return true;
+        }else{
+            return true;
         }
-        return true;
     }
 
     @Override

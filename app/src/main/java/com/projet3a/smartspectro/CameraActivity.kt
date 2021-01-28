@@ -17,6 +17,8 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.TextureView.*
 import android.view.View
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries

@@ -44,6 +44,7 @@ class WavelengthCalibrationActivity : Activity() {
     private val backgroundHandler: Handler? = null
     private var originShift: Int? = null
     private var captureZone: IntArray = IntArray(5)
+    private lateinit var list: Array<Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +60,7 @@ class WavelengthCalibrationActivity : Activity() {
             "Manuel" -> enableManuelCalibration()
             "Automatique" -> enableAutoCalibration()
             "Semi-automatique" -> enableSemiAutoCalibration()
-            else  -> Toast.makeText(
+            else -> Toast.makeText(
                 applicationContext,
                 "problem of button clicked",
                 Toast.LENGTH_SHORT
@@ -115,20 +116,155 @@ class WavelengthCalibrationActivity : Activity() {
         /* Adding listeners to the buttons */
         Button436.setTextColor(Color.BLUE)
         Button436.setOnClickListener {
-            //TODO
+            viewPic("436")
         }
         Button488.setTextColor(Color.argb(100, 30, 144, 255))
         Button488.setOnClickListener {
-            //TODO
+            viewPic("488")
         }
         Button546.setTextColor(Color.GREEN)
         Button546.setOnClickListener {
-            //TODO
+            viewPic("546")
         }
         Button612.setTextColor(Color.RED)
         Button612.setOnClickListener {
-            //TODO
+            viewPic("612")
         }
+    }
+
+    private fun viewPic(s: String) {
+        var position = 0
+        when (s) {
+            "436" -> position = wavelengthRaysPositions[0]
+            "488" -> position = wavelengthRaysPositions[1]
+            "546" -> position = wavelengthRaysPositions[2]
+            "612" -> position = wavelengthRaysPositions[3]
+            else -> Toast.makeText(
+                applicationContext,
+                "problem of button automatique",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        wavelengthCalibrationView?.x = position.toFloat()
+        displayLine()
+    }
+
+    private fun calibrate() {
+        list = Array(9) { 0 }
+        list[0] = 0
+        list[1] = graphData!!.size
+        list[8] = 2
+        var firstPic = maxElement()
+        var secondPic = maxElement()
+        if (secondPic < firstPic) {
+            var temp = firstPic
+            firstPic = secondPic
+            secondPic = temp
+        }
+        var thirdPic = maxElement()
+        if (thirdPic < firstPic) {
+            var temp = firstPic
+            firstPic = thirdPic
+            thirdPic = temp
+        }
+        if (thirdPic in (firstPic + 1) until secondPic) {
+            var temp = secondPic
+            secondPic = thirdPic
+            thirdPic = temp
+        }
+        var fourthPic = maxElement()
+        if (fourthPic < firstPic) {
+            var temp = firstPic
+            firstPic = fourthPic
+            fourthPic = temp
+        }
+        if (fourthPic in (firstPic + 1) until secondPic) {
+            var temp = secondPic
+            secondPic = fourthPic
+            fourthPic = temp
+        }
+        if (fourthPic in (secondPic + 1) until thirdPic) {
+            var temp = thirdPic
+            thirdPic = fourthPic
+            fourthPic = temp
+        }
+        wavelengthRaysPositions[0] = firstPic + originShift!!
+        wavelengthRaysPositions[1] = secondPic + originShift!!
+        wavelengthRaysPositions[2] = thirdPic + originShift!!
+        wavelengthRaysPositions[3] = fourthPic + originShift!!
+    }
+
+    private fun maxElement(): Int {
+        var max = 0.0;
+        var maxIndex = -1;
+        var element: Double;
+        var size = list[8]
+
+        var j = size - 1
+        while (j > -1) {
+            var i = list[j - 1];
+            while (i < list[j]) {
+                element = graphData!![i];
+                if (element > max) {
+                    max = element
+                    maxIndex = i
+                }
+                i += 1
+            }
+            j -= 2
+        }
+        var terminer = false
+        var temp = 0
+        var temp2 = 0
+        while (j < list[8] + 1) {
+            if (list[j + 2] > (maxIndex - 25) && !terminer) {
+                if (list[j + 2] > (maxIndex + 25)) {
+                    if (list[j + 1] < (maxIndex - 25)) {
+                        temp = maxIndex + 25
+                        temp2 = list[j + 2]
+                        list[j + 2] = maxIndex - 25
+                        terminer = true
+                    } else {
+                        list[j + 1] = maxIndex + 25
+                        terminer = true
+                        j = list[8] + 1
+                    }
+                } else {
+                    if (list[j + 1] > (maxIndex - 25)) {
+                        while(j<list[8]-1){
+                            list[j+1] = list[j+3]
+                            list[j+2] = list[j+4]
+                            j+=2
+                        }
+                        list[8] -= 2
+                        terminer = true
+                    } else {
+                        list[j + 2] = maxIndex - 25
+                        terminer = true
+                        if (list[j + 3] > maxIndex + 25) {
+                            j = list[8] + 1
+                        }
+                    }
+                }
+            } else {
+                j += 2
+            }
+            if (terminer && j != list[8] + 1) {
+                j += 2
+                var temp3 = 0
+                while (j < list[8] + 1) {
+                    temp3 = list[j + 1]
+                    list[j + 1] = temp
+                    temp = list[j + 2]
+                    list[j + 2] = temp2
+                    temp2 = temp
+                    temp = temp3
+                    j += 2
+                }
+                list[8] = j + 1
+            }
+        }
+        return maxIndex
     }
 
     private fun enableManuelCalibration() {
@@ -182,6 +318,10 @@ class WavelengthCalibrationActivity : Activity() {
         /* Adding listeners to the buttons */
         buttonPicture!!.setOnClickListener {
             setImagesCapture()
+            if (AppParameters.getInstance().button == "Automatique") {
+                /* Do the calibration */
+                calibrate()
+            }
             allowWavelengthCalibration()
         }
         clearPicture!!.setOnClickListener {
@@ -253,13 +393,14 @@ class WavelengthCalibrationActivity : Activity() {
         captureZone[1] = imageopen.yOrigin
         captureZone[3] = mat2.height()
         captureZone[4] = height
-            mat.release()
+        mat.release()
         val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(mat2, subimage)
         mat2.release()
         val rgb = RGBDecoder.getRGBCode(subimage, subimage.width, subimage.height)
         intensity = RGBDecoder.getImageIntensity(rgb)
-        graphData = RGBDecoder.computeIntensityMean(intensity!!, subimage.width, subimage.height)
+        graphData =
+            RGBDecoder.computeIntensityMean(intensity!!, subimage.width, subimage.height)
         //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
         textureView!!.visibility = View.INVISIBLE
         image.visibility = View.VISIBLE
@@ -316,11 +457,19 @@ class WavelengthCalibrationActivity : Activity() {
             val currentLinePosition = wavelengthCalibrationView!!.xPositionOfDrawnLine
             for (i in wavelengthRaysPositions.indices) {
                 if (i < currentIndex && wavelengthRaysPositions[i] > currentLinePosition) { // check if values in the tab before the currentIndex value are <= to the currentIndex value
-                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "The selected order is not correct",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 } else if (i > currentIndex && wavelengthRaysPositions[i] > 0 && wavelengthRaysPositions[i] <= currentLinePosition) { // check if values in the tab after the currentIndex value are >= to the currentIndex value
-                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "The selected order is not correct",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 }
@@ -342,11 +491,19 @@ class WavelengthCalibrationActivity : Activity() {
                 searchMaxIntensity(wavelengthCalibrationView!!.xPositionOfDrawnLine)
             for (i in wavelengthRaysPositions.indices) {
                 if (i < currentIndex && wavelengthRaysPositions[i] > currentLinePosition) { // check if values in the tab before the currentIndex value are <= to the currentIndex value
-                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "The selected order is not correct",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 } else if (i > currentIndex && wavelengthRaysPositions[i] > 0 && wavelengthRaysPositions[i] <= currentLinePosition) { // check if values in the tab after the currentIndex value are >= to the currentIndex value
-                    Toast.makeText(this, "The selected order is not correct", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        "The selected order is not correct",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     return
                 }
@@ -365,7 +522,8 @@ class WavelengthCalibrationActivity : Activity() {
         var max = 0.0
         val dim = 25
         val j = (currentLinePosition - viewShift.toInt() - dim / 2).coerceAtLeast(0)
-        val k = (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!!-1)
+        val k =
+            (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!! - 1)
         for (i in j until k) {
             if (graphData?.get((i))!! > max) {
                 res = (i + originShift!!)
@@ -387,11 +545,21 @@ class WavelengthCalibrationActivity : Activity() {
     }
 
     private var textureListener: SurfaceTextureListener = object : SurfaceTextureListener {
-        override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
+        override fun onSurfaceTextureAvailable(
+            surfaceTexture: SurfaceTexture,
+            i: Int,
+            i1: Int
+        ) {
             openCamera()
         }
 
-        override fun onSurfaceTextureSizeChanged(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {}
+        override fun onSurfaceTextureSizeChanged(
+            surfaceTexture: SurfaceTexture,
+            i: Int,
+            i1: Int
+        ) {
+        }
+
         override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
             return false
         }
@@ -400,20 +568,21 @@ class WavelengthCalibrationActivity : Activity() {
     }
 
     // "listener" of the camera device, calls various method depending on the CameraDevice state
-    private val stateCallback: CameraDevice.StateCallback = object : CameraDevice.StateCallback() {
-        override fun onOpened(camera: CameraDevice) {
-            cameraDevice = camera
-            createCameraPreview()
-        }
+    private val stateCallback: CameraDevice.StateCallback =
+        object : CameraDevice.StateCallback() {
+            override fun onOpened(camera: CameraDevice) {
+                cameraDevice = camera
+                createCameraPreview()
+            }
 
-        override fun onDisconnected(camera: CameraDevice) {
-            cameraDevice!!.close()
-        }
+            override fun onDisconnected(camera: CameraDevice) {
+                cameraDevice!!.close()
+            }
 
-        override fun onError(cameraDevice: CameraDevice, i: Int) {
-            cameraDevice.close()
+            override fun onError(cameraDevice: CameraDevice, i: Int) {
+                cameraDevice.close()
+            }
         }
-    }
 
     /**
      * opens the camera (if allowed), activates flash light and sets image dimension for capture
@@ -498,7 +667,10 @@ class WavelengthCalibrationActivity : Activity() {
                 CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
                 CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_OFF
             )
-            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+            captureBuilder.set(
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AF_MODE_OFF
+            )
             val captureRequest = captureBuilder.build()
             session.setRepeatingRequest(captureRequest, callback, backgroundHandler)
         } catch (e: CameraAccessException) {

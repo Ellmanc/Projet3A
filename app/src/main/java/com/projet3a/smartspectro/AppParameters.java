@@ -13,7 +13,7 @@ public final class AppParameters {
     private int[] captureZone;
     private double slope;
     private double intercept;
-    private String button;
+    public String button;
     private Double[] reference;
     private Double[] sample;
 
