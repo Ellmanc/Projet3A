@@ -35,6 +35,7 @@ class AnalysisActivity : Activity(), LocationListener {
     private var longitude = 0.0
     private var dataSize = 0
     private lateinit var values: Array<DataPoint?>
+    private var file: File? = null
 
     /**
      * Displays last known position
@@ -58,6 +59,24 @@ class AnalysisActivity : Activity(), LocationListener {
         enableShareButton()
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         buildGoogleApiClient()
+        enableListeners()
+    }
+
+    private fun enableListeners() {
+        buttonSave!!.setOnClickListener {
+            saveGraph()
+        }
+        buttonFinish!!.setOnClickListener {
+            setResult(1)
+            finish()
+        }
+        buttonReturn!!.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun saveGraph() {
+        saveMeasurements()
     }
 
     /**
@@ -71,7 +90,6 @@ class AnalysisActivity : Activity(), LocationListener {
      * opens e-mail dialog box with file containing data as attachment
      */
     private fun openEmail() {
-        val file = saveMeasurements()
         val emailIntent = Intent(Intent.ACTION_SEND)
         emailIntent.type = "vnd.android.cursor.dir/email"
         emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf(""))
@@ -83,7 +101,7 @@ class AnalysisActivity : Activity(), LocationListener {
             val uri = FileProvider.getUriForFile(
                 this@AnalysisActivity,
                 BuildConfig.APPLICATION_ID + ".provider",
-                file
+                file!!
             )
             emailIntent.putExtra(Intent.EXTRA_STREAM, uri)
         }
@@ -98,23 +116,20 @@ class AnalysisActivity : Activity(), LocationListener {
     /**
      * Saves analysis activity's results in text file and returns file
      */
-    private fun saveMeasurements(): File? {
-        var res: File? = null
-        val sdf = SimpleDateFormat("yyyyMMdd_HH:mm:ss", Locale.getDefault())
+    private fun saveMeasurements() {
+        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
         val currentDateAndTime = sdf.format(Date())
-        val outputStream: OutputStream
-        val directory = File(
-            Environment.DIRECTORY_DOCUMENTS
-        ) //check whether Documents directory exists, if not, we create it
+        var outputStream: OutputStream? = null
+        val directory = File(Environment.getExternalStorageDirectory().toString() + "/Documents")
+        //check whether Documents directory exists, if not, we create it
         if (!directory.exists()) {
             val result = directory.mkdirs()
             if (!result) {
                 Toast.makeText(this, "Unable to create directory", Toast.LENGTH_SHORT).show()
-                return null
             }
         }
         val file = File(
-            Environment.DIRECTORY_DOCUMENTS,
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
             "Transmission_$currentDateAndTime.txt"
         )
         try {
@@ -130,12 +145,9 @@ class AnalysisActivity : Activity(), LocationListener {
             outputStream.close()
             Toast.makeText(this@AnalysisActivity, "File successfully saved", Toast.LENGTH_SHORT)
                 .show()
-            res = file
         } catch (e: IOException) {
             e.printStackTrace()
-            null
         }
-        return res
     }
 
     /**
@@ -172,13 +184,13 @@ class AnalysisActivity : Activity(), LocationListener {
                 begin++
             }
             maxTransmissionText =
-                "Peak found at " + floor(maxTransmissionValue!!.x) + " nm and is " + Math.floor(
+                "Peak found at " + floor(maxTransmissionValue!!.x) + " nm and is " + floor(
                     maxTransmissionValue.y
                 )
 
             //setting manually X axis max and min bounds to see all points on graph
             resultGraph.viewport.isXAxisBoundsManual = true
-            resultGraph.viewport.setMaxX((xMin+300).toDouble())
+            resultGraph.viewport.setMaxX((xMin + 300).toDouble())
             resultGraph.viewport.setMinX(xMin.toDouble())
         } else {
             xAxisTitle = "Pixel position"
@@ -200,7 +212,7 @@ class AnalysisActivity : Activity(), LocationListener {
 
             //setting manually X axis bound to see all points on graph
             resultGraph.viewport.isXAxisBoundsManual = true
-            resultGraph.viewport.setMaxX((xMin+300).toDouble())
+            resultGraph.viewport.setMaxX((xMin + 300).toDouble())
             resultGraph.viewport.setMinX(xMin.toDouble())
         }
         val series = LineGraphSeries(values)
@@ -268,7 +280,7 @@ class AnalysisActivity : Activity(), LocationListener {
                     longitude = location.longitude
                 }
                 if (fusedLocationProviderClient != null) {
-                    //stopLocationUpdates()
+                    stopLocationUpdates()
                 }
                 lastKnownPositionElement
             }

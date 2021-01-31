@@ -90,7 +90,7 @@ open class CameraActivity : Activity() {
                             ?.toList() as ArrayList<Double>?
                         AppParameters.getInstance().sample = definitiveMeasures["Sample"]
                             ?.toList() as ArrayList<Double>?
-                        startActivity(intent)
+                        startActivityForResult(intent, 100)
                     } else {
                         Toast.makeText(
                             applicationContext,
@@ -107,6 +107,15 @@ open class CameraActivity : Activity() {
             clearGraph()
             clearSample()
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 100) {
+            if (resultCode == 1) {
+                finish()
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun clearSample() {

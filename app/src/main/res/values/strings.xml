@@ -31,4 +31,7 @@
     <string name="calibration_semi_auto">Semi-automatique</string>
     <string name="calibration_auto">Automatique</string>
     <string name="keyExtra">ButtonClicked</string>
+    <string name="save">Sauvegarder</string>
+    <string name="Return">retour</string>
+    <string name="finish">Fin</string>
 </resources>

@@ -143,7 +143,7 @@ class WavelengthCalibrationActivity : Activity() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-        wavelengthCalibrationView?.changeXLine(position + image.x.toInt() )
+        wavelengthCalibrationView?.changeXLine(position + image.x.toInt())
     }
 
     private fun calibrate() {
@@ -230,10 +230,10 @@ class WavelengthCalibrationActivity : Activity() {
                     }
                 } else {
                     if (list[j + 1] > (maxIndex - shift)) {
-                        while(j<list[8]-1){
-                            list[j+1] = list[j+3]
-                            list[j+2] = list[j+4]
-                            j+=2
+                        while (j < list[8] - 1) {
+                            list[j + 1] = list[j + 3]
+                            list[j + 2] = list[j + 4]
+                            j += 2
                         }
                         list[8] -= 2
                         terminer = true
@@ -337,7 +337,7 @@ class WavelengthCalibrationActivity : Activity() {
                     return@setOnClickListener
                 }
             }
-            if(AppParameters.getInstance().button == "Automatique"){
+            if (AppParameters.getInstance().button == "Automatique") {
                 wavelengthRaysPositions[0] += originShift!!
                 wavelengthRaysPositions[1] += originShift!!
                 wavelengthRaysPositions[2] += originShift!!
@@ -351,8 +351,15 @@ class WavelengthCalibrationActivity : Activity() {
             captureZone[0] = (((400 - lineData[1]) / lineData[0]).toInt()).coerceAtLeast(0)
             captureZone[2] = ((700 - lineData[1]) / lineData[0]).toInt() - captureZone[0]
             AppParameters.getInstance().captureZone = captureZone
-            startActivity(intent)
+            startActivityForResult(intent, 10)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 10) {
+            finish()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun clear() {
