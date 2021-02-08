@@ -35,11 +35,11 @@ public final class AppParameters {
     /* Getters and setters */
 
     public void setSample(ArrayList<Double> r) {
-        this.reference = r.toArray(new Double[0]);
+        this.sample = r.toArray(new Double[0]);
     }
 
     public void setReference(ArrayList<Double> r) {
-        this.sample = r.toArray(new Double[0]);
+        this.reference = r.toArray(new Double[0]);
     }
 
     public void setCaptureZone(int[] array) {
