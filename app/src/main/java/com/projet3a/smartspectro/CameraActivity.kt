@@ -1,6 +1,5 @@
 package com.projet3a.smartspectro
 
-import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
@@ -18,6 +17,9 @@ import android.view.TextureView
 import android.view.TextureView.*
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.camera_layout.*
@@ -29,10 +31,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.floor
 
+
 /**
  * Created by Rémy Cordeau-Mirani on 20/09/2019.
  */
-open class CameraActivity : Activity() {
+open class CameraActivity : AppCompatActivity() {
     private var isReferenceSaved = false
     private var isSampleSaved = false
     private var textureView: TextureView? = null
@@ -46,12 +49,14 @@ open class CameraActivity : Activity() {
     private var graphData: DoubleArray? = null
     private val definitiveMeasures = HashMap<String, DoubleArray?>()
     private var x: DoubleArray? = null
+    private var calibrate = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.camera_layout)
         contextWrapper = ContextWrapper(applicationContext)
         enableListeners()
+        updateUIGraph()
     }
 
     /**
@@ -182,6 +187,11 @@ open class CameraActivity : Activity() {
      */
     private fun createCameraPreview() {
         try {
+            texture.layoutParams =
+                ConstraintLayout.LayoutParams(
+                    texture.width,
+                    (AppParameters.getInstance().heightOrigin * 0.3).toInt()
+                )
             val texture = textureView!!.surfaceTexture!!
             texture.setDefaultBufferSize(imageDimension!!.width, imageDimension!!.height)
             val surface = Surface(texture)
@@ -232,6 +242,10 @@ open class CameraActivity : Activity() {
         }
         val width = textureView!!.width
         val height = textureView!!.height
+        if (!calibrate) {
+            AppParameters.getInstance().recalibration(height)
+            calibrate = true
+        }
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
         val captureZone = AppParameters.getInstance().captureZone
         val captureZoneBitmap = Bitmap.createBitmap(
@@ -250,90 +264,106 @@ open class CameraActivity : Activity() {
      * Updates the UI graph when a new picture is taken
      */
     private fun updateUIGraph() {
+        intensityGraph.layoutParams =
+            ConstraintLayout.LayoutParams(
+                intensityGraph.width,
+                (AppParameters.getInstance().heightOrigin * 0.5).toInt()
+            )
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraint)
+        constraintSet.connect(
+            maxInGraph.id, ConstraintSet.TOP, texture.id, ConstraintSet.BOTTOM
+        )
+        constraintSet.connect(
+            intensityGraph.id, ConstraintSet.TOP, maxInGraph.id, ConstraintSet.BOTTOM
+        )
+        constraintSet.applyTo(constraint)
         val updateGraphThread = Thread { // checking if the graphic contains series
             if (intensityGraph.series.isNotEmpty() && !isReferenceSaved) {
                 intensityGraph.removeAllSeries()
             }
+            if (graphData != null) {
 
-            //adding series to graph
-            val xAxisTitle: String
-            val maxText: String
-            var maxValue =
-                DataPoint(0.0, 0.0)
-            val values = arrayOfNulls<DataPoint>(
-                graphData!!.size
-            )
-            val slope = AppParameters.getInstance().slope
-            val intercept = AppParameters.getInstance().intercept
-            var begin =
-                AppParameters.getInstance().captureZone[0]
-            // xBegin for the capture zone (pixel 0 by default)
-            val xMin = begin
-            if (slope != 0.0 && intercept != 0.0) {
-                // if both are not equal to zero, it means that wavelength calibration has been done
-                xAxisTitle = "Wavelength (nm)"
-                x = DoubleArray(graphData!!.size)
-                for (i in graphData!!.indices) { //getting wavelength from position
-                    x!![i] = (begin * slope + intercept).toInt().toDouble()
-                    values[i] = DataPoint(x!![i], graphData!![i])
-                    if (graphData!![i] > maxValue.y) {
-                        maxValue = values[i]!!
+                //adding series to graph
+                val xAxisTitle: String
+                val maxText: String
+                var maxValue =
+                    DataPoint(0.0, 0.0)
+                val values = arrayOfNulls<DataPoint>(
+                    graphData!!.size
+                )
+                val slope = AppParameters.getInstance().slope
+                val intercept = AppParameters.getInstance().intercept
+                var begin =
+                    AppParameters.getInstance().captureZone[0]
+                // xBegin for the capture zone (pixel 0 by default)
+                val xMin = begin
+                if (slope != 0.0 && intercept != 0.0) {
+                    // if both are not equal to zero, it means that wavelength calibration has been done
+                    xAxisTitle = "Wavelength (nm)"
+                    x = DoubleArray(graphData!!.size)
+                    for (i in graphData!!.indices) { //getting wavelength from position
+                        x!![i] = (begin * slope + intercept).toInt().toDouble()
+                        values[i] = DataPoint(x!![i], graphData!![i])
+                        if (graphData!![i] > maxValue.y) {
+                            maxValue = values[i]!!
+                        }
+                        begin++
                     }
-                    begin++
-                }
-                maxText =
-                    "Peak found at " + floor(maxValue.x) + " nm and is " + floor(
+                    maxText =
+                        "Peak found at " + floor(maxValue.x) + " nm and is " + floor(
+                            maxValue.y
+                        )
+
+                    //setting manually X axis max and min bounds to see all points on graph
+                    intensityGraph.viewport.isXAxisBoundsManual = true
+                    intensityGraph.viewport.setMaxX(800.0)
+                    intensityGraph.viewport.setMinX(400.0)
+                } else {
+                    xAxisTitle = "Pixel position"
+                    for (i in graphData!!.indices) {
+                        values[i] = DataPoint(begin.toDouble(), graphData!![i])
+                        if (graphData!![i] > maxValue.y) {
+                            maxValue = values[i]!!
+                        }
+                        begin++
+                    }
+                    maxText = "Peak found at " + maxValue.x + " px and is " + floor(
                         maxValue.y
                     )
 
-                //setting manually X axis max and min bounds to see all points on graph
-                intensityGraph.viewport.isXAxisBoundsManual = true
-                intensityGraph.viewport.setMaxX(700.0)
-                intensityGraph.viewport.setMinX(400.0)
-            } else {
-                xAxisTitle = "Pixel position"
-                for (i in graphData!!.indices) {
-                    values[i] = DataPoint(begin.toDouble(), graphData!![i])
-                    if (graphData!![i] > maxValue.y) {
-                        maxValue = values[i]!!
+                    //setting manually X axis bound to see all points on graph
+                    intensityGraph.viewport.isXAxisBoundsManual = true
+                    intensityGraph.viewport.setMaxX(graphData!!.size.toDouble() - 1)
+                    intensityGraph.viewport.setMinX(xMin.toDouble())
+                }
+
+                //if the reference is saved and not the data, we remove previous data
+                if (isReferenceSaved) {
+                    if (intensityGraph.series.size > 1) {
+                        intensityGraph.series.removeAt(1)
                     }
-                    begin++
                 }
-                maxText = "Peak found at " + maxValue.x + " px and is " + floor(
-                    maxValue.y
-                )
 
-                //setting manually X axis bound to see all points on graph
-                intensityGraph.viewport.isXAxisBoundsManual = true
-                intensityGraph.viewport.setMaxX(graphData!!.size.toDouble() - 1)
-                intensityGraph.viewport.setMinX(xMin.toDouble())
-            }
+                //setting up X and Y axis title
+                val gridLabelRenderer = intensityGraph.gridLabelRenderer
+                gridLabelRenderer.horizontalAxisTitle = xAxisTitle
+                gridLabelRenderer.verticalAxisTitle = "Intensity"
 
-            //if the reference is saved and not the data, we remove previous data
-            if (isReferenceSaved) {
-                if (intensityGraph.series.size > 1) {
-                    intensityGraph.series.removeAt(1)
+                //adding points to graph
+                val series = LineGraphSeries(values)
+                if (isReferenceSaved) {
+                    series.color = Color.RED
                 }
-            }
-
-            //setting up X and Y axis title
-            val gridLabelRenderer = intensityGraph.gridLabelRenderer
-            gridLabelRenderer.horizontalAxisTitle = xAxisTitle
-            gridLabelRenderer.verticalAxisTitle = "Intensity"
-
-            //adding points to graph
-            val series = LineGraphSeries(values)
-            if (isReferenceSaved) {
-                series.color = Color.RED
-            }
-            intensityGraph.addSeries(series)
-            if (maxInGraph != null && maxValue.y != 0.0) {
-                maxInGraph.text = maxText
-                maxInGraph.visibility = View.VISIBLE
-            }
-            runOnUiThread {
-                if (intensityGraph.visibility != View.VISIBLE) {
-                    intensityGraph.visibility = View.VISIBLE
+                intensityGraph.addSeries(series)
+                runOnUiThread {
+                    if (maxInGraph != null && maxValue.y != 0.0) {
+                        maxInGraph.text = maxText
+                        maxInGraph.visibility = View.VISIBLE
+                    }
+                    if (intensityGraph.visibility != View.VISIBLE) {
+                        intensityGraph.visibility = View.VISIBLE
+                    }
                 }
             }
         }

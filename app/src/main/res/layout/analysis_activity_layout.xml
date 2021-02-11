@@ -1,57 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <com.jjoe64.graphview.GraphView
-        android:id="@+id/resultGraph"
-        android:layout_width="0dp"
-        android:layout_height="267dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="56dp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:ignore="MissingConstraints" />
+            android:id="@+id/resultGraph"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="-88dp"
+            tools:ignore="MissingConstraints" />
 
     <TextView
-        android:id="@+id/lastKnownPosition"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/maxTransmission"
-        app:layout_constraintVertical_bias="0.216"
-        tools:visibility="invisible"
-        android:gravity="center_horizontal" />
+            android:id="@+id/lastKnownPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toTopOf="@id/maxTransmission"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/resultGraph"
+            tools:visibility="invisible"
+            android:gravity="center_horizontal" />
 
     <TextView
-        android:id="@+id/maxTransmission"
-        android:layout_width="0dp"
-        android:layout_height="31dp"
-        android:layout_marginTop="20dp"
-        android:textAlignment="center"
-        android:textColor="#F44336"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/resultGraph"
-        tools:visibility="visible"
-        android:gravity="center_horizontal" />
+            android:id="@+id/maxTransmission"
+            android:layout_width="wrap_content"
+            android:layout_height="31dp"
+            android:layout_marginTop="2dp"
+            android:textAlignment="center"
+            android:textColor="#F44336"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lastKnownPosition"
+            app:layout_constraintBottom_toTopOf="@id/shareButton"
+            tools:visibility="visible"
+            android:gravity="center_horizontal" />
 
     <Button
-        android:id="@+id/shareButton"
-        android:layout_width="42dp"
-        android:layout_height="39dp"
-        android:background="@android:drawable/ic_menu_share"
-        android:backgroundTint="#000000"
-        app:layout_constraintBottom_toTopOf="@+id/resultGraph"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/shareButton"
+            android:layout_width="42dp"
+            android:layout_height="39dp"
+            android:background="@android:drawable/ic_menu_share"
+            android:backgroundTint="#000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/maxTransmission"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonFinish" />
 
     <Button
             android:id="@+id/buttonSave"
@@ -60,8 +58,8 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonReturn"
-            app:layout_constraintTop_toBottomOf="@+id/lastKnownPosition"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@+id/maxTransmission"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
             android:id="@+id/buttonReturn"
@@ -70,7 +68,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@+id/buttonSave"
             app:layout_constraintEnd_toStartOf="@+id/buttonFinish"
-            app:layout_constraintTop_toBottomOf="@+id/lastKnownPosition"
+            app:layout_constraintTop_toBottomOf="@+id/maxTransmission"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     <Button
@@ -78,9 +76,9 @@
             android:text="@string/finish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/buttonReturn"
-            app:layout_constraintTop_toBottomOf="@+id/lastKnownPosition"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintEnd_toEndOf="@id/shareButton"
+            app:layout_constraintStart_toEndOf="@id/buttonReturn"
+            app:layout_constraintTop_toBottomOf="@id/maxTransmission"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

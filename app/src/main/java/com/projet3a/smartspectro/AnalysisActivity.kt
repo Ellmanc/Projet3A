@@ -1,7 +1,6 @@
 package com.projet3a.smartspectro
 
 import android.Manifest
-import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,12 +9,15 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.solver.state.State
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import com.google.android.gms.location.*
-import com.jjoe64.graphview.BuildConfig
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.analysis_activity_layout.*
@@ -27,7 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.floor
 
-class AnalysisActivity : Activity(), LocationListener {
+class AnalysisActivity : AppCompatActivity(), LocationListener {
     private var fusedLocationProviderClient: FusedLocationProviderClient? = null
     private var locationRequest: LocationRequest? = null
     private var locationCallback: LocationCallback? = null
@@ -43,7 +45,7 @@ class AnalysisActivity : Activity(), LocationListener {
     private var lastKnownPositionElement: TextView? = null
         get() {
             field = lastKnownPosition
-            val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss", Locale.getDefault())
+            val sdf = SimpleDateFormat("yyyy/MM/dd HH_mm_ss", Locale.getDefault())
             val currentDateAndTime = sdf.format(Date())
             position =
                 "Data measured at position ($latitude,$longitude) on $currentDateAndTime"
@@ -117,9 +119,9 @@ class AnalysisActivity : Activity(), LocationListener {
      * Saves analysis activity's results in text file and returns file
      */
     private fun saveMeasurements() {
-        val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+        val sdf = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault())
         val currentDateAndTime = sdf.format(Date())
-        var outputStream: OutputStream? = null
+        var outputStream: OutputStream?
         val directory = File(Environment.getExternalStorageDirectory().toString() + "/Documents")
         //check whether Documents directory exists, if not, we create it
         if (!directory.exists()) {
@@ -128,7 +130,7 @@ class AnalysisActivity : Activity(), LocationListener {
                 Toast.makeText(this, "Unable to create directory", Toast.LENGTH_SHORT).show()
             }
         }
-        val file = File(
+        file = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
             "Transmission_$currentDateAndTime.txt"
         )
@@ -167,12 +169,12 @@ class AnalysisActivity : Activity(), LocationListener {
         values = arrayOfNulls(dataSize)
         val slope = AppParameters.getInstance().slope
         val intercept = AppParameters.getInstance().intercept
-        var begin = 400
+        var begin = AppParameters.getInstance().captureZone[0]
         val xMin = begin
         if (slope != 0.0 && intercept != 0.0) {
             xAxisTitle = "Wavelength (nm)"
             for (i in referenceData.indices) {
-                val x = slope * begin + intercept
+                val x = (begin * slope + intercept).toInt().toDouble()
                 if (referenceData[i] != 0.0) {
                     values[i] = DataPoint(x, sampleData!![i] / referenceData[i])
                     if (values[i]!!.y > maxTransmissionValue!!.y) {
@@ -190,8 +192,8 @@ class AnalysisActivity : Activity(), LocationListener {
 
             //setting manually X axis max and min bounds to see all points on graph
             resultGraph.viewport.isXAxisBoundsManual = true
-            resultGraph.viewport.setMaxX((xMin + 300).toDouble())
-            resultGraph.viewport.setMinX(xMin.toDouble())
+            resultGraph.viewport.setMaxX(800.0)
+            resultGraph.viewport.setMinX(400.0)
         } else {
             xAxisTitle = "Pixel position"
             for (i in referenceData.indices) {
@@ -223,6 +225,12 @@ class AnalysisActivity : Activity(), LocationListener {
         gridLabelRenderer.verticalAxisTitle = "Transmission"
         resultGraph.addSeries(series)
         maxTransmission.text = maxTransmissionText
+        resultGraph.layoutParams =
+            ConstraintLayout.LayoutParams(
+                resultGraph.width,
+                (AppParameters.getInstance().heightOrigin * 0.8).toInt()
+            )
+        resultGraph.invalidate()
     }
 
     /**

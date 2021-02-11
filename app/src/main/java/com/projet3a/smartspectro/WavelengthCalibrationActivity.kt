@@ -1,6 +1,5 @@
 package com.projet3a.smartspectro
 
-import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
@@ -18,6 +17,7 @@ import android.view.TextureView.SurfaceTextureListener
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.android.synthetic.main.choices.*
 import kotlinx.android.synthetic.main.wavelength_cal_layout.*
@@ -25,7 +25,7 @@ import org.opencv.android.Utils
 import org.opencv.core.Mat
 import java.util.*
 
-class WavelengthCalibrationActivity : Activity() {
+class WavelengthCalibrationActivity : AppCompatActivity() {
 
     private var cameraId: String? = null
     private var intensity: DoubleArray? = null
@@ -193,7 +193,7 @@ class WavelengthCalibrationActivity : Activity() {
     }
 
     private fun maxElement(): Int {
-        val shift = 50
+        val shift = (0.04 * textureView!!.width).toInt()
         var max = 0.0
         var maxIndex = -1
         var element: Double
@@ -349,7 +349,7 @@ class WavelengthCalibrationActivity : Activity() {
             AppParameters.getInstance().slope = lineData[0]
             AppParameters.getInstance().intercept = lineData[1]
             captureZone[0] = (((400 - lineData[1]) / lineData[0]).toInt()).coerceAtLeast(0)
-            captureZone[2] = ((700 - lineData[1]) / lineData[0]).toInt() - captureZone[0]
+            captureZone[2] = ((800 - lineData[1]) / lineData[0]).toInt() - captureZone[0]
             AppParameters.getInstance().captureZone = captureZone
             startActivityForResult(intent, 10)
         }
@@ -402,8 +402,9 @@ class WavelengthCalibrationActivity : Activity() {
         val imageopen = Image(mat)
         val mat2 = imageopen.Canny()
         originShift = imageopen.rectOrigin
-        captureZone[1] = (549 * imageopen.yOrigin) / height
-        captureZone[3] = (549 * mat2.height()) / height
+        AppParameters.getInstance().heightOrigin = height
+        captureZone[1] = imageopen.yOrigin
+        captureZone[3] = mat2.height()
         mat.release()
         val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
         Utils.matToBitmap(mat2, subimage)
@@ -534,7 +535,7 @@ class WavelengthCalibrationActivity : Activity() {
         val dim = 25
         val j = (currentLinePosition - viewShift.toInt() - dim / 2).coerceAtLeast(0)
         val k =
-            (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!! - 1)
+            (currentLinePosition - viewShift.toInt() + dim / 2).coerceAtMost(intensity?.size!! - 2)
         for (i in j until k) {
             if (graphData?.get((i))!! > max) {
                 res = (i + originShift!!)
@@ -692,7 +693,7 @@ class WavelengthCalibrationActivity : Activity() {
     public override fun onPause() {
         super.onPause()
         Log.e(TAG, "On Pause")
-        cameraDevice!!.close()
+        cameraDevice?.close()
         textureView = null
     }
 

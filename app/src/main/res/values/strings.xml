@@ -17,10 +17,10 @@
 
 
     <string name="validate_measure_button">Validate</string>
-    <string name="take_picture">Take picture</string>
+    <string name="take_picture">Visualize</string>
     <string name="save_reference_button">Save reference</string>
     <string name="save_picture_button">Save sample</string>
-    <string name="clear_button_text">Clear graph</string>
+    <string name="clear_button_text">Clear all</string>
     <string name="calibrate_button">Capture zone</string>
     <string name="L612_nm">612 nm</string>
     <string name="L546_nm">546 nm</string>

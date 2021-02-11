@@ -16,15 +16,22 @@ public final class AppParameters {
     private Double[] reference;
     private Double[] sample;
 
+    private int heightOrigin;
+
     private AppParameters() {
         super();
+    }
+
+    public void recalibration(int height) {
+        captureZone[1] = (height * captureZone[1]) / heightOrigin;
+        captureZone[3] = (height * captureZone[3]) / heightOrigin;
     }
 
     public static AppParameters getInstance() {
         if (AppParameters.instance == null) {
             //synchronized keyword prevents any multiple instantiations by several threads
-            synchronized (AppParameters.class){
-                if(AppParameters.instance == null){
+            synchronized (AppParameters.class) {
+                if (AppParameters.instance == null) {
                     AppParameters.instance = new AppParameters();
                 }
             }
@@ -33,6 +40,10 @@ public final class AppParameters {
     }
 
     /* Getters and setters */
+
+    public void setHeightOrigin(int heightOrigin) {
+        this.heightOrigin = heightOrigin;
+    }
 
     public void setSample(ArrayList<Double> r) {
         this.sample = r.toArray(new Double[0]);
@@ -56,6 +67,10 @@ public final class AppParameters {
 
     public void setIntercept(double i) {
         this.intercept = i;
+    }
+
+    public int getHeightOrigin() {
+        return heightOrigin;
     }
 
     public ArrayList<Double> getReference() {
