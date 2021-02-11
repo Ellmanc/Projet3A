@@ -9,11 +9,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.solver.state.State
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
@@ -121,7 +119,7 @@ class AnalysisActivity : AppCompatActivity(), LocationListener {
     private fun saveMeasurements() {
         val sdf = SimpleDateFormat("yyyyMMdd_HH_mm_ss", Locale.getDefault())
         val currentDateAndTime = sdf.format(Date())
-        var outputStream: OutputStream?
+        val outputStream: OutputStream?
         val directory = File(Environment.getExternalStorageDirectory().toString() + "/Documents")
         //check whether Documents directory exists, if not, we create it
         if (!directory.exists()) {
@@ -175,7 +173,7 @@ class AnalysisActivity : AppCompatActivity(), LocationListener {
             xAxisTitle = "Wavelength (nm)"
             for (i in referenceData.indices) {
                 val x = (begin * slope + intercept).toInt().toDouble()
-                if (referenceData[i] != 0.0) {
+                if (referenceData[i] - sampleData[i] >= 1 && referenceData[i] >= 5) {
                     values[i] = DataPoint(x, sampleData!![i] / referenceData[i])
                     if (values[i]!!.y > maxTransmissionValue!!.y) {
                         maxTransmissionValue = values[i]
@@ -186,10 +184,7 @@ class AnalysisActivity : AppCompatActivity(), LocationListener {
                 begin++
             }
             maxTransmissionText =
-                "Peak found at " + floor(maxTransmissionValue!!.x) + " nm and is " + floor(
-                    maxTransmissionValue.y
-                )
-
+                "Peak found at " + floor(maxTransmissionValue!!.x) + " nm and is " + maxTransmissionValue.y
             //setting manually X axis max and min bounds to see all points on graph
             resultGraph.viewport.isXAxisBoundsManual = true
             resultGraph.viewport.setMaxX(800.0)
@@ -197,7 +192,7 @@ class AnalysisActivity : AppCompatActivity(), LocationListener {
         } else {
             xAxisTitle = "Pixel position"
             for (i in referenceData.indices) {
-                if (referenceData[i] != 0.0) {
+                if (referenceData[i] <= 0.001) {
                     values[i] = DataPoint(begin.toDouble(), sampleData!![i] / referenceData[i])
                     if (values[i]!!.y > maxTransmissionValue!!.y) {
                         maxTransmissionValue = values[i]
@@ -208,10 +203,7 @@ class AnalysisActivity : AppCompatActivity(), LocationListener {
                 begin++
             }
             maxTransmissionText =
-                "Peak found at " + maxTransmissionValue!!.x + " px and is " + floor(
-                    maxTransmissionValue.y
-                )
-
+                "Peak found at " + maxTransmissionValue!!.x + " px and is " + maxTransmissionValue.y
             //setting manually X axis bound to see all points on graph
             resultGraph.viewport.isXAxisBoundsManual = true
             resultGraph.viewport.setMaxX((xMin + 300).toDouble())

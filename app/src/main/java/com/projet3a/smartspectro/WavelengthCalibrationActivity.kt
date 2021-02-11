@@ -397,12 +397,12 @@ class WavelengthCalibrationActivity : AppCompatActivity() {
         val width = textureView!!.width
         val height = textureView!!.height
         val bitmap = textureView!!.getBitmap(width, height) // getting raw data
+        AppParameters.getInstance().heightOrigin = height
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
         val imageopen = Image(mat)
         val mat2 = imageopen.Canny()
         originShift = imageopen.rectOrigin
-        AppParameters.getInstance().heightOrigin = height
         captureZone[1] = imageopen.yOrigin
         captureZone[3] = mat2.height()
         mat.release()

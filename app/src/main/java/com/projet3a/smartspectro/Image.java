@@ -21,7 +21,7 @@ public class Image {
     public Mat Canny() {
         //Canny
         Mat result_canny = new Mat();
-        Imgproc.Canny(image, result_canny, 10, 100,3,false);
+        Imgproc.Canny(image, result_canny, 10, 100, 3, false);
         Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(200, 50));
         Imgproc.dilate(result_canny, result_canny, element);
         Imgproc.erode(result_canny, result_canny, element);
@@ -40,6 +40,8 @@ public class Image {
             }
         }
         rect_mini = Imgproc.boundingRect(contours.get(contours_max));
+        rect_mini.x -= AppParameters.getInstance().getHeightOrigin() * 0.03;
+        rect_mini.width += 2 * (AppParameters.getInstance().getHeightOrigin() * 0.03);
         return image.submat(rect_mini);
     }
 
@@ -47,7 +49,7 @@ public class Image {
         return rect_mini.x;
     }
 
-    public int getYOrigin(){
+    public int getYOrigin() {
         return rect_mini.y;
     }
 
