@@ -1,5 +1,6 @@
 package com.projet3a.smartspectro;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
@@ -18,10 +19,13 @@ public class Image {
         image = mat;
     }
 
-    public Mat Canny() {
+    public Mat Canny() throws Exception {
         //Canny
         Mat result_canny = new Mat();
         Imgproc.Canny(image, result_canny, 10, 100, 3, false);
+        if (Core.minMaxLoc(result_canny).maxVal == Core.minMaxLoc(result_canny).minVal) {
+            throw new Exception("treatment image problem");
+        }
         Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(200, 50));
         Imgproc.dilate(result_canny, result_canny, element);
         Imgproc.erode(result_canny, result_canny, element);
@@ -42,6 +46,9 @@ public class Image {
         rect_mini = Imgproc.boundingRect(contours.get(contours_max));
         rect_mini.x -= AppParameters.getInstance().getHeightOrigin() * 0.03;
         rect_mini.width += 2 * (AppParameters.getInstance().getHeightOrigin() * 0.03);
+        if (rect_mini.x <= 0 && rect_mini.x + rect_mini.width >= result_canny.width()) {
+            throw new Exception("treatment image problem");
+        }
         return image.submat(rect_mini);
     }
 

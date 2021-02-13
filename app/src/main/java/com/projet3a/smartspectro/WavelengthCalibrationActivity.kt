@@ -44,6 +44,7 @@ class WavelengthCalibrationActivity : AppCompatActivity() {
     private var originShift: Int? = null
     private var captureZone: IntArray = IntArray(5)
     private lateinit var list: Array<Int>
+    private var correctImage: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -316,12 +317,16 @@ class WavelengthCalibrationActivity : AppCompatActivity() {
     private fun enableListeners() {
         /* Adding listeners to the buttons */
         buttonPicture!!.setOnClickListener {
-            setImagesCapture()
-            if (AppParameters.getInstance().button == "Automatique") {
-                /* Do the calibration */
-                calibrate()
+            correctImage = setImagesCapture()
+            if (correctImage) {
+                if (AppParameters.getInstance().button == "Automatique") {
+                    /* Do the calibration */
+                    calibrate()
+                }
+                allowWavelengthCalibration()
+            } else {
+                finish()
             }
-            allowWavelengthCalibration()
         }
         clearPicture!!.setOnClickListener {
             clear()
@@ -388,11 +393,11 @@ class WavelengthCalibrationActivity : AppCompatActivity() {
     /**
      * Processes camera's raw data to get intensity for each pixel in the capture zone
      */
-    private fun setImagesCapture() {
+    private fun setImagesCapture(): Boolean {
         if (null == cameraDevice) {
             Log.e(TAG, "cameraDevice is null")
             openCamera()
-            return
+            return false
         }
         val width = textureView!!.width
         val height = textureView!!.height
@@ -401,22 +406,34 @@ class WavelengthCalibrationActivity : AppCompatActivity() {
         val mat = Mat()
         Utils.bitmapToMat(bitmap, mat)
         val imageopen = Image(mat)
-        val mat2 = imageopen.Canny()
-        originShift = imageopen.rectOrigin
-        captureZone[1] = imageopen.yOrigin
-        captureZone[3] = mat2.height()
-        mat.release()
-        val subimage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(mat2, subimage)
-        mat2.release()
-        val rgb = RGBDecoder.getRGBCode(subimage, subimage.width, subimage.height)
-        intensity = RGBDecoder.getImageIntensity(rgb)
-        graphData =
-            RGBDecoder.computeIntensityMean(intensity!!, subimage.width, subimage.height)
-        //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
-        textureView!!.visibility = View.INVISIBLE
-        image.visibility = View.VISIBLE
-        image.setImageBitmap(subimage)
+        try {
+            val mat2 = imageopen.Canny()
+            originShift = imageopen.rectOrigin
+            captureZone[1] = imageopen.yOrigin
+            captureZone[3] = mat2.height()
+            mat.release()
+            val subImage = Bitmap.createBitmap(mat2.width(), mat2.height(), Bitmap.Config.ARGB_8888)
+            Utils.matToBitmap(mat2, subImage)
+            mat2.release()
+            val rgb = RGBDecoder.getRGBCode(subImage, subImage.width, subImage.height)
+            intensity = RGBDecoder.getImageIntensity(rgb)
+            graphData =
+                RGBDecoder.computeIntensityMean(intensity!!, subImage.width, subImage.height)
+            //graphData = RGBDecoder.getMaxIntensity(intensity, intensity!!.size)
+            textureView!!.visibility = View.INVISIBLE
+            image.visibility = View.VISIBLE
+            image.setImageBitmap(subImage)
+        } catch (e: Exception) {
+            if (e.message == "treatment image problem") {
+                Toast.makeText(
+                    this@WavelengthCalibrationActivity,
+                    "The optic system is not correctly installed",
+                    Toast.LENGTH_LONG
+                ).show()
+                return false
+            }
+        }
+        return true
     }
 
     /**
